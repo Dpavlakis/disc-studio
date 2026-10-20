@@ -17,6 +17,10 @@ for center in [45,135,225,315]:
  for ch,width in zip(text,adv):
   tile=Image.new('RGBA',(140,160));ImageDraw.Draw(tile).text((70,80),ch,font=font,fill='#a8aaa6',stroke_width=1,stroke_fill='#777975',anchor='mm')
   stamp(tile,.01485,angle+width*factor/2);angle+=width*factor
+# Fine etched hatching changes reflectance, without painting lighting or rainbows.
+rng=np.random.default_rng(360);tile=rng.uniform(.94,1.035,(16,16)).astype(np.float32)
+grain=np.tile(tile,(S//16,S//16))
+foil=Image.fromarray(np.uint8(np.clip(np.asarray(foil,dtype=np.float32)*grain[...,None],0,255))).convert('L')
 foil.save(OUT/'xbox360-holographic-ring.png')
 foil.crop((int(C-.0178*scale),int(C-.0178*scale),int(C+.0178*scale),int(C+.0178*scale))).resize((1000,1000)).save(OUT/'xbox360-hub-preview.png')
 art=Image.new('RGB',(2048,2048),'#e5e7e3');d=ImageDraw.Draw(art)
@@ -47,7 +51,7 @@ def acc(data,kind,integer=False):
  a=np.asarray(data,dtype='<u4' if integer else '<f4');v=view(a.tobytes());item={'bufferView':v,'componentType':5125 if integer else 5126,'count':len(a),'type':kind}
  if not integer:item.update(min=a.min(axis=0).tolist(),max=a.max(axis=0).tolist())
  g['accessors'].append(item);return len(g['accessors'])-1
-for name in ['xbox360-label-art.png','xbox360-groove-normal.png','xbox360-holographic-ring.png','xbox360-film-thickness.png','xbox360-hub-molded-normal.png']:
+for name in ['xbox360-label-art.png','xbox360-groove-normal.png','xbox360-holographic-ring.png']:
  g['images'].append({'bufferView':view((OUT/name).read_bytes()),'mimeType':'image/png','name':name});g['textures'].append({'source':len(g['images'])-1,'sampler':0})
 g['materials']=[
  {'name':'TOP_ART_REPLACE_THIS_TEXTURE','alphaMode':'MASK','pbrMetallicRoughness':{'baseColorTexture':{'index':0},'metallicFactor':0,'roughnessFactor':.36}},
@@ -59,8 +63,12 @@ g['materials']=[
  {'name':'XBOX360_DARK_MASTERING_BAND','pbrMetallicRoughness':{'baseColorFactor':[.12,.12,.12,1],'metallicFactor':1,'roughnessFactor':.22}},
  {'name':'XBOX360_MASTERING_REFLECTIVE_BARS','pbrMetallicRoughness':{'baseColorFactor':[.52,.52,.52,1],'metallicFactor':1,'roughnessFactor':.13},'extensions':{'KHR_materials_iridescence':{'iridescenceFactor':.4,'iridescenceIor':1.38,'iridescenceThicknessMinimum':380,'iridescenceThicknessMaximum':380}}}
 ]
-g['materials'][3]['extensions']['KHR_materials_iridescence'].update(iridescenceThicknessMinimum=200,iridescenceThicknessMaximum=700,iridescenceThicknessTexture={'index':3})
-g['materials'][2]['normalTexture']={'index':4,'scale':1.2}
+# Broad fixed thickness variation made the ring resemble a colored print.
+# Use a neutral chrome foil with restrained, angle-dependent thin-film response.
+g['materials'][3]['extensions']['KHR_materials_iridescence'].update(iridescenceFactor=.22,iridescenceThicknessMinimum=380,iridescenceThicknessMaximum=380)
+g['materials'][3]['pbrMetallicRoughness']['roughnessFactor']=.105
+g['materials'][6]['pbrMetallicRoughness'].update(baseColorFactor=[.025,.025,.025,1],roughnessFactor=.16)
+g['materials'].append({'name':'XBOX360_RAISED_IFPI_CLEAR_PLASTIC','alphaMode':'BLEND','pbrMetallicRoughness':{'baseColorFactor':[.82,.86,.92,.66],'metallicFactor':0,'roughnessFactor':.12},'extensions':{'KHR_materials_transmission':{'transmissionFactor':.55},'KHR_materials_ior':{'ior':1.58}}})
 def surface(name,profile,mat,angle_ranges=None):
  p=[];norm=[];uv=[];tan=[];idx=[];resolution=2048 if mat==4 else 1024
  for start,end in (angle_ranges or [(0,360)]):
@@ -85,7 +93,7 @@ surface('06_Xbox360_Holographic_Center',[(.0173,.00064),(.0125,.00064)],3)
 surface('07_Xbox360_Smooth_Dark_Rim',[(.059,-.000605),(.0593,-.000605),(.0593,.000605),(.059,.000605),(.059,-.000605)],4)
 surface('08_Xbox360_Hologram_Outer_Boundary',[(.0173,.00068),(.0171,.00068)],4)
 surface('09_Xbox360_Reverse_Holographic_Center',[(.0125,-.00064),(.0173,-.00064)],3)
-surface('10_Xbox360_Back_Mastering_Band',[(.01765,-.00066),(.022,-.00066)],6)
+surface('10_Xbox360_Back_Mastering_Band',[(.01765,-.00066),(.0212,-.00066)],6)
 surface('11_Xbox360_Back_Hologram_Chrome_Lip',[(.0173,-.00064),(.01745,-.00072),(.01765,-.00064)],1)
 # Two narrow barcode rows, with reflective bars rather than white ink.
 import random
@@ -99,9 +107,39 @@ def mastering_pattern(seed,arcs,widths,gaps):
 outer=mastering_pattern(360,[(50,130),(230,310)],[.14,.2,.28,.42,.6],[.18,.25,.4,.65])
 inner=mastering_pattern(361,[(58,124),(238,304)],[.12,.18,.3,.5],[.2,.35,.55,.8])
 middle=mastering_pattern(362,[(154,174)],[.3,.45,.7,1.0],[.3,.5,.9,1.5])
-surface('12_Xbox360_Mastering_Barcode_Outer_Track',[(.02115,-.00072),(.0218,-.00072)],7,outer)
-surface('13_Xbox360_Mastering_Barcode_Inner_Track',[(.01985,-.00072),(.0203,-.00072)],7,inner)
-surface('14_Xbox360_Mastering_Barcode_Middle_Group',[(.02045,-.00072),(.021,-.00072)],7,middle)
+surface('12_Xbox360_Mastering_Barcode_Outer_Track',[(.0206,-.00072),(.0211,-.00072)],7,outer)
+surface('13_Xbox360_Mastering_Barcode_Inner_Track',[(.0196,-.00072),(.02,-.00072)],7,inner)
+surface('14_Xbox360_Mastering_Barcode_Middle_Group',[(.0201,-.00072),(.0205,-.00072)],7,middle)
+
+# Rounded clear relief strokes make the mold code visible as real geometry.
+# Coordinates below describe simple sans-serif letter strokes, not printed ink.
+letters={
+ 'I':[[(.5,0),(.5,1)]],
+ 'F':[[(0,0),(0,1),(1,1)],[(0,.53),(.78,.53)]],
+ 'P':[[(0,0),(0,1),(.7,1),(1,.86),(1,.65),(.7,.53),(0,.53)]],
+ 'K':[[(0,0),(0,1)],[(1,1),(0,.48),(1,0)]],
+ 'A':[[(0,0),(.5,1),(1,0)],[(.22,.42),(.78,.42)]],
+ '0':[[(.5+.5*math.cos(a),.5+.5*math.sin(a)) for a in np.linspace(0,math.tau,17)]]}
+pos=[];normals=[];uvs=[];tangents=[];indices=[]
+text='IFPI KKA0';advance=.00056;radius=.0109;stroke=.000018
+def on_hub(x,y):
+ a=math.pi+x/radius;r=radius+y
+ return np.array([r*math.sin(a),-.00069,r*math.cos(a)])
+for ci,ch in enumerate(text):
+ for path in letters.get(ch,[]):
+  for q0,q1 in zip(path,path[1:]):
+   a=on_hub((ci-(len(text)-1)/2)*advance+(q0[0]-.5)*.0004,(q0[1]-.5)*.0007)
+   b=on_hub((ci-(len(text)-1)/2)*advance+(q1[0]-.5)*.0004,(q1[1]-.5)*.0007)
+   direction=b-a;direction/=np.linalg.norm(direction);up=np.array([0.,-1.,0.]);side=np.cross(direction,up);side/=np.linalg.norm(side);base=len(pos)
+   for point in [a,b]:
+    for k in range(6):
+     angle=k/6*math.tau;n=up*math.cos(angle)+side*math.sin(angle);p=point+n*stroke
+     pos.append(p);normals.append(n);uvs.append((0,0));tangents.append((*direction,1))
+   for k in range(6):
+    j=(k+1)%6;indices.extend([base+k,base+6+j,base+6+k,base+k,base+j,base+6+j])
+attrs={'POSITION':acc(pos,'VEC3'),'NORMAL':acc(normals,'VEC3'),'TEXCOORD_0':acc(uvs,'VEC2'),'TANGENT':acc(tangents,'VEC4')}
+g['meshes'].append({'name':'15_Raised_IFPI_KKA0_Mold_Lettering','primitives':[{'attributes':attrs,'indices':acc(indices,'SCALAR',True),'material':8}]})
+g['nodes'].append({'name':'15_Raised_IFPI_KKA0_Mold_Lettering','mesh':len(g['meshes'])-1,'rotation':[-math.sqrt(.5),0,0,math.sqrt(.5)],'translation':[0,.06,0]});g['scenes'][0]['nodes'].append(len(g['nodes'])-1)
 g['buffers'][0]['byteLength']=len(blob);js=json.dumps(g,separators=(',',':')).encode();js+=b' '*((-len(js))%4);blob+=b'\0'*((-len(blob))%4)
 data=struct.pack('<III',0x46546c67,2,12+8+len(js)+8+len(blob))+struct.pack('<II',len(js),0x4e4f534a)+js+struct.pack('<II',len(blob),0x004e4942)+blob
 (OUT/'xbox360-silver-disc.glb').write_bytes(data)
