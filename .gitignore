@@ -6,3 +6,7 @@ node_modules/
 work/measure_barcode.py
 work/cleanup-samples/
 outputs/disc-cleanup-report.csv
+outputs/site/
+outputs/007-cleanup-notes.txt
+outputs/007-from-russia-with-love-filled.png
+outputs/007-from-russia-with-love-upload.png

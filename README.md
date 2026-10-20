@@ -20,7 +20,7 @@ The preview uses 2× supersampling and maintains full rendering resolution. Appe
 
 - `outputs/*.glb`: portable models with embedded textures; units are meters, 120 mm disc diameter and 15 mm center hole.
 - `outputs/branding-source/`: original supplied SVG branding assets.
-- `outputs/*.png`: textures, detail preview and example 007 artwork.
+- `outputs/*.png`: textures and detail preview.
 - `outputs/create-blender-scene.py`: optional Blender 4.x setup; run from Blender's Scripting workspace with the other output files alongside it. This setup has been syntax checked but not run in Blender.
 - `work/build_disc.py`, `work/make_hub.py`: model and texture builders.
 - `work/render_logos.cjs`: renders the supplied SVGs into working texture assets.
@@ -40,7 +40,7 @@ npm run build
 
 The small logo PNGs are already included, so the Node step is optional unless the source SVGs change. The ZIP is generated locally and excluded from Git because its contents are already tracked.
 
-The 007 samples were cleaned and extended with image generation; small lettering may differ from the original source. Supplied PlayStation logos and game artwork remain third-party assets; no ownership or redistribution license is asserted for them.
+Supplied PlayStation logos remain third-party assets; no ownership or redistribution license is asserted for them. Personal game-art samples are excluded from the repository.
 
 ## Clean a matching disc-art library
 
