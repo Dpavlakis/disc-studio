@@ -78,7 +78,7 @@ In Blender 4.x or later, open the Scripting workspace, load create-blender-scene
 ''',encoding='utf-8')
 for p in root.glob('*.glb'):
  b=p.read_bytes(); magic,ver,total=struct.unpack_from('<III',b); assert magic==0x46546c67 and total==len(b)
- size=struct.unpack_from('<I',b,12)[0]; g=json.loads(b[20:20+size]); assert len(g['meshes'])==(15 if p.name.startswith('xbox360-') else 16)
+ size=struct.unpack_from('<I',b,12)[0]; g=json.loads(b[20:20+size]); assert len(g['meshes'])==16
  for mesh in g['meshes']:
   attrs=mesh['primitives'][0]['attributes']; assert all(g['accessors'][a]['count']==g['accessors'][attrs['POSITION']]['count'] for a in attrs.values())
  print(p.name, 'validated', len(g['meshes']), 'meshes')
@@ -92,6 +92,7 @@ with zipfile.ZipFile(root/'optical-disc-pack.zip','w',zipfile.ZIP_DEFLATED) as z
   if p.name.startswith('007-') or p.name=='disc-cleanup-report.csv':continue
   z.write(p,rel)
 print('Packaged', (root/'optical-disc-pack.zip').stat().st_size, 'bytes')
+
 
 
 

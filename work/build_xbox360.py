@@ -89,13 +89,19 @@ surface('10_Xbox360_Back_Mastering_Band',[(.01765,-.00066),(.022,-.00066)],6)
 surface('11_Xbox360_Back_Hologram_Chrome_Lip',[(.0173,-.00064),(.01745,-.00072),(.01765,-.00064)],1)
 # Two narrow barcode rows, with reflective bars rather than white ink.
 import random
-random.seed(360);bars=[]
-for start,end in [(55,125),(235,305)]:
- angle=start
- while angle<end:
-  width=random.choice([.14,.2,.28,.42,.6]);bars.append((angle,min(end,angle+width)));angle+=width+random.choice([.18,.25,.4,.65])
-surface('12_Xbox360_Mastering_Barcode_Outer_Row',[(.02115,-.00072),(.0218,-.00072)],7,bars)
-surface('13_Xbox360_Mastering_Barcode_Inner_Row',[(.0207,-.00072),(.021,-.00072)],7,[(a+.07,b+.07) for a,b in bars])
+def mastering_pattern(seed,arcs,widths,gaps):
+ rng=random.Random(seed);result=[]
+ for start,end in arcs:
+  angle=start
+  while angle<end:
+   width=rng.choice(widths);result.append((angle,min(end,angle+width)));angle+=width+rng.choice(gaps)
+ return result
+outer=mastering_pattern(360,[(50,130),(230,310)],[.14,.2,.28,.42,.6],[.18,.25,.4,.65])
+inner=mastering_pattern(361,[(58,124),(238,304)],[.12,.18,.3,.5],[.2,.35,.55,.8])
+middle=mastering_pattern(362,[(154,174)],[.3,.45,.7,1.0],[.3,.5,.9,1.5])
+surface('12_Xbox360_Mastering_Barcode_Outer_Track',[(.02115,-.00072),(.0218,-.00072)],7,outer)
+surface('13_Xbox360_Mastering_Barcode_Inner_Track',[(.01985,-.00072),(.0203,-.00072)],7,inner)
+surface('14_Xbox360_Mastering_Barcode_Middle_Group',[(.02045,-.00072),(.021,-.00072)],7,middle)
 g['buffers'][0]['byteLength']=len(blob);js=json.dumps(g,separators=(',',':')).encode();js+=b' '*((-len(js))%4);blob+=b'\0'*((-len(blob))%4)
 data=struct.pack('<III',0x46546c67,2,12+8+len(js)+8+len(blob))+struct.pack('<II',len(js),0x4e4f534a)+js+struct.pack('<II',len(blob),0x004e4942)+blob
 (OUT/'xbox360-silver-disc.glb').write_bytes(data)

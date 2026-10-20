@@ -20,6 +20,8 @@ The preview uses 2× supersampling and maintains full rendering resolution. Appe
 
 The Xbox 360 clear hub includes the user-confirmed **IFPI KKA0** molded code as surface relief, without opaque lettering. Its center wordmarks have faint outline treatment; the hologram uses neutral base colors and thin-film response rather than a painted rainbow.
 
+The Xbox mastering band has independently patterned outer and inner barcode tracks plus a shorter middle group, based on the supplied close-ups. These are geometric reflective marks, not duplicated rows or a functional machine-readable disc ID.
+
 ## Files
 
 - `outputs/*.glb`: portable models with embedded textures; units are meters, 120 mm disc diameter and 15 mm center hole.
