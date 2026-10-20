@@ -48,10 +48,16 @@ def sector(start,end,ri,ro,color):
  d.polygon(points,fill=color)
 # Dark mastering band with bright radial strokes and clean terminal blocks.
 # Barcode is modeled as geometric sectors in build_disc.py.
+# Only dark mastering marks remain in this layer. Unmarked areas and etched
+# logos are apertures revealing the reflective substrate beneath.
+import numpy as np
+rgb=np.asarray(im)
+opacity=np.where(rgb.mean(axis=2)<40,255,0).astype(np.uint8)
+im=im.convert('RGBA');im.putalpha(Image.fromarray(opacity))
 im.save(out/'hub-branding.png')
 # Green roughness channel gives the etched lettering a different light response.
 import numpy as np
-a=np.asarray(im); light=a.mean(axis=2)>100
+a=rgb; light=a.mean(axis=2)>100
 rough=np.empty_like(a); rough[:,:,0]=255;rough[:,:,1]=np.where(light,40,65);rough[:,:,2]=255
 Image.fromarray(rough).save(out/'hub-metal-roughness.png')
 im.crop((int(C-.0235*scale),int(C-.0235*scale),int(C+.0235*scale),int(C+.0235*scale))).resize((1000,1000)).save(out/'hub-detail-preview.png')

@@ -6,6 +6,8 @@ Editable upright optical disc models in blue, silver, gold, and near-black finis
 
 Open `outputs/disc-preview.html` in a browser. It embeds the four models and needs internet to load the model-viewer library.
 
+Use the **PS1** and **PS2** sections to browse their current disc finishes. **Xbox 360** is a prepared section for the next model; it does not contain an Xbox disc yet. Artwork selections are kept separately for PS1 and PS2 during the browser session.
+
 - Choose a disc finish and upload a square image under **Top artwork**.
 - **Show artwork** hides or restores the print and PS2 band. With the print hidden, underside branding can be seen mirrored from the opposite side.
 - **Front view** and **Back view** frame the disc straight on.

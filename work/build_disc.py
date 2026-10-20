@@ -87,18 +87,23 @@ surface('03_Outer_Bevel_Edge',[(.0594,-.0006),(.0598,-.0006),(.06,-.0004),(.06,.
 surface('04_Clear_Centre_Hub',[(.0114,.0006),(.0075,.0006),(.0075,-.0006),(.0114,-.0006)],2)
 for j,(rr,w) in enumerate([(.0081,.0001),(.0095,.00008),(.011,.00008)]):
  surface('05_Moulded_Ring_'+str(j),[(rr-w,-.000605),(rr-w,-.0007),(rr+w,-.0007),(rr+w,-.000605)],4)
-surface('06_Etched_Branding_Matrix_Ring',[(.0114,-.0006),(.022,-.0006)],5)
+surface('06_Etched_Branding_Matrix_Ring',[(.0114,-.00066),(.022,-.00066)],5)
 surface('07_Top_PS2_Branding_Above_Artwork',[(.0587,.00064),(.0114,.00064)],6)
 surface('08_Smooth_Outer_Ring_Both_Sides',[(.0590,-.000605),(.0593,-.000605),(.0593,.000605),(.0590,.000605),(.0590,-.000605)],7)
-def precision_ring(name,ri,ro,material,depth=-.00064):
+def precision_ring(name,ri,ro,material,depth=-.00074):
  surface(name,[(ri,depth),(ro,depth)],material)
 precision_ring('09_Smooth_Matrix_Outer_Boundary',.02181,.02195,7)
 precision_ring('10_Smooth_Matrix_Inner_Dark_Boundary',.01945,.02005,7)
-precision_ring('11_Smooth_Reflective_Separator',.01961,.01969,8,-.00070)
+precision_ring('11_Smooth_Reflective_Separator',.01961,.01969,8,-.00080)
 # Angles in the measured texture run clockwise from its top; convert to XZ.
-surface('12_Geometric_Barcode_Dark_Band',[(.02005,-.00064),(.02181,-.00064)],7,[(105,207)])
+surface('12_Geometric_Barcode_End_Blocks',[(.02005,-.00074),(.02181,-.00074)],7,[(105,109),(204,207)])
 runs=json.loads((Path(__file__).parent/'barcode-runs.json').read_text())
-surface('13_Geometric_Barcode_Reflective_Bars',[(.02035,-.00070),(.02167,-.00070)],8,[(a-90,b-90) for a,b in runs])
+gaps=[];cursor=199
+for a,b in runs:
+ if a>cursor:gaps.append((cursor-90,a-90))
+ cursor=max(cursor,b)
+if cursor<294:gaps.append((cursor-90,204))
+surface('13_Geometric_Barcode_Dark_Gaps',[(.02005,-.00074),(.02181,-.00074)],7,gaps)
 g['materials'][7]['doubleSided']=True
 g['materials'][8]['doubleSided']=True
 g['materials'][7]['pbrMetallicRoughness'].update(baseColorFactor=[.002,.002,.002,1],metallicFactor=1,roughnessFactor=.23)
@@ -116,10 +121,17 @@ g['materials'][4]['pbrMetallicRoughness'].update(baseColorFactor=[.8,.85,.95,.28
 g['materials'][1]['doubleSided']=True
 g['materials'][1]['pbrMetallicRoughness'].update(baseColorTexture={'index':4},metallicRoughnessTexture={'index':5},roughnessFactor=1)
 g['materials'][5]['doubleSided']=True
+g['materials'][5]['alphaMode']='MASK'
+g['materials'][5]['alphaCutoff']=.5
 g['materials'][5]['pbrMetallicRoughness']['baseColorFactor']=[.012,.018,.55,1]
 g['materials'][5]['pbrMetallicRoughness']['metallicFactor']=1
 g['materials'][5]['extensions']['KHR_materials_clearcoat']['clearcoatFactor']=0
 g['materials'][5]['extensions']['KHR_materials_iridescence']['iridescenceFactor']=0
+# A single-sided substrate on either side of the mastering film keeps the
+# cutouts metallic from both viewing directions without hiding the reverse etch.
+substrate=json.loads(json.dumps(g['materials'][1]));substrate['name']='INNER_DISC_SUBSTRATE';substrate['doubleSided']=False
+g['materials'].append(substrate)
+surface('14_Inner_Reflective_Substrate',[(.0114,-.0006),(.022,-.0006),(.022,-.0009),(.0114,-.0009),(.0114,-.0006)],9)
 # Stand on the rim: rotate -90 degrees about X, then raise by the radius.
 for node in g['nodes']:
  node['rotation']=[-math.sqrt(.5),0,0,math.sqrt(.5)]
@@ -138,6 +150,7 @@ for variant,color,metal,rough,iri in [('silver',[.52,.52,.52,1],1,.16,.14),('gol
  g['materials'][8]['pbrMetallicRoughness']['metallicFactor']=metal
  g['materials'][8]['extensions']['KHR_materials_iridescence']['iridescenceFactor']=iri
  m['extensions']['KHR_materials_clearcoat']['clearcoatFactor']=.15 if variant=='silver' else .65
+ g['materials'][9]=json.loads(json.dumps(m));g['materials'][9]['name']='INNER_DISC_SUBSTRATE';g['materials'][9]['doubleSided']=False
  g['materials'][3]['pbrMetallicRoughness']['baseColorFactor']=[c*.35 for c in color[:3]]+[1]
  j=json.dumps(g,separators=(',',':')).encode(); j+=b' '*((-len(j))%4)
  b=struct.pack('<III',0x46546c67,2,12+8+len(j)+8+len(blob))+struct.pack('<II',len(j),0x4e4f534a)+j+struct.pack('<II',len(blob),0x004e4942)+blob
