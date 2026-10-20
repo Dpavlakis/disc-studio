@@ -4,9 +4,9 @@ Editable upright optical disc models in blue, silver, gold, and near-black finis
 
 ## Use the preview
 
-Open `outputs/disc-preview.html` in a browser. It embeds the four models and needs internet to load the model-viewer library.
+Open `outputs/disc-preview.html` in a browser. It embeds the five models and needs internet to load the model-viewer library.
 
-Use the **PS1** and **PS2** sections to browse their current disc finishes. **Xbox 360** is a prepared section for the next model; it does not contain an Xbox disc yet. Artwork selections are kept separately for PS1 and PS2 during the browser session.
+Use the **PS1**, **PS2**, and **Xbox 360** sections to browse their disc models. Artwork selections are kept separately for each system during the browser session. Xbox 360 uses the supplied Xbox SVG and X360 by Redge font for its holographic center ring, with its own artwork boundary and no PS2 label band. The supplied underside photographs guide its reversed holographic ring, chrome lip, dark mastering band and two geometric barcode rows. The barcode spacing is representative rather than an exact pressing ID. A varying thin-film thickness produces light-dependent color shifts; it is an artistic approximation of the reference hologram.
 
 - Choose a disc finish and upload a square image under **Top artwork**.
 - **Show artwork** hides or restores the print and PS2 band. With the print hidden, underside branding can be seen mirrored from the opposite side.
@@ -40,7 +40,7 @@ npm run logos
 npm run build
 ```
 
-The small logo PNGs are already included, so the Node step is optional unless the source SVGs change. The ZIP is generated locally and excluded from Git because its contents are already tracked.
+The small logo PNGs are already included, so the Node step is optional unless the source SVGs change. The Xbox font is stored in `outputs/branding-source/X360.ttf` and loaded directly without installing it. The ZIP is generated locally and excluded from Git because its contents are already tracked.
 
 Supplied PlayStation logos remain third-party assets; no ownership or redistribution license is asserted for them. Personal game-art samples are excluded from the repository.
 

@@ -1,0 +1,90 @@
+"""Xbox 360 silver disc, using the supplied Xbox symbol and X360 font."""
+from pathlib import Path
+from PIL import Image,ImageDraw,ImageFont
+import numpy as np,math,json,struct
+ROOT=Path(__file__).resolve().parents[1];OUT=ROOT/'outputs';S=4096;C=S/2;scale=S/.12
+foil=Image.new('RGB',(S,S),'#a8aaa6');d=ImageDraw.Draw(foil)
+font=ImageFont.truetype(str(OUT/'branding-source'/'X360.ttf'),76)
+def stamp(tile,r,angle):
+ tile=tile.rotate(-angle,resample=Image.Resampling.BICUBIC,expand=True)
+ a=math.radians(angle);x=C+math.sin(a)*r*scale;y=C-math.cos(a)*r*scale
+ foil.paste(tile,(round(x-tile.width/2),round(y-tile.height/2)),tile)
+logo=Image.open(ROOT/'work'/'xbox-logo.png').convert('RGBA').resize((155,155),Image.Resampling.LANCZOS)
+for angle in range(0,360,90):stamp(logo,.01485,angle)
+for center in [45,135,225,315]:
+ text='XBOX 360';adv=[font.getlength(ch) for ch in text];factor=180/math.pi/(.01485*scale);angle=center-sum(adv)*factor/2
+ for ch,width in zip(text,adv):
+  tile=Image.new('RGBA',(140,160));ImageDraw.Draw(tile).text((70,80),ch,font=font,fill='#30312f',anchor='mm')
+  stamp(tile,.01485,angle+width*factor/2);angle+=width*factor
+foil.save(OUT/'xbox360-holographic-ring.png')
+foil.crop((int(C-.0178*scale),int(C-.0178*scale),int(C+.0178*scale),int(C+.0178*scale))).resize((1000,1000)).save(OUT/'xbox360-hub-preview.png')
+art=Image.new('RGB',(2048,2048),'#e5e7e3');d=ImageDraw.Draw(art)
+f=ImageFont.truetype(str(OUT/'branding-source'/'X360.ttf'),108)
+d.text((1024,590),'YOUR XBOX 360 ART',font=f,fill='#273326',anchor='mm')
+d.text((1024,1460),'Replace this image with your disc artwork',font=ImageFont.truetype('C:/Windows/Fonts/arial.ttf',38),fill='#4b554d',anchor='mm')
+art.save(OUT/'xbox360-label-art.png')
+Image.open(OUT/'groove-normal.png').resize((512,512),Image.Resampling.LANCZOS).save(OUT/'xbox360-groove-normal.png')
+y,x=np.mgrid[:512,:512].astype(np.float32);a=np.arctan2(y-255.5,x-255.5);r=np.hypot(x-255.5,y-255.5)/512
+film=np.uint8(np.clip(.5+.28*np.sin(a*3)+.14*np.sin(r*90),0,1)*255)
+Image.fromarray(np.stack([film,film,film],axis=-1)).save(OUT/'xbox360-film-thickness.png')
+g={'asset':{'version':'2.0','generator':'Xbox 360 disc studio'},'scene':0,'scenes':[{'nodes':[]}],'nodes':[],'meshes':[],'materials':[],'buffers':[{}],'bufferViews':[],'accessors':[],'images':[],'textures':[],'samplers':[{'magFilter':9729,'minFilter':9987,'wrapS':33071,'wrapT':33071}],'extensionsUsed':['KHR_materials_iridescence','KHR_materials_transmission','KHR_materials_ior','KHR_materials_clearcoat','KHR_materials_anisotropy']}
+blob=bytearray()
+def view(data):
+ while len(blob)%4:blob.append(0)
+ off=len(blob);blob.extend(data);g['bufferViews'].append({'buffer':0,'byteOffset':off,'byteLength':len(data)});return len(g['bufferViews'])-1
+def acc(data,kind,integer=False):
+ a=np.asarray(data,dtype='<u4' if integer else '<f4');v=view(a.tobytes());item={'bufferView':v,'componentType':5125 if integer else 5126,'count':len(a),'type':kind}
+ if not integer:item.update(min=a.min(axis=0).tolist(),max=a.max(axis=0).tolist())
+ g['accessors'].append(item);return len(g['accessors'])-1
+for name in ['xbox360-label-art.png','xbox360-groove-normal.png','xbox360-holographic-ring.png','xbox360-film-thickness.png']:
+ g['images'].append({'bufferView':view((OUT/name).read_bytes()),'mimeType':'image/png','name':name});g['textures'].append({'source':len(g['images'])-1,'sampler':0})
+g['materials']=[
+ {'name':'TOP_ART_REPLACE_THIS_TEXTURE','alphaMode':'MASK','pbrMetallicRoughness':{'baseColorTexture':{'index':0},'metallicFactor':0,'roughnessFactor':.36}},
+ {'name':'XBOX360_DATA_REFLECTIVE','doubleSided':True,'pbrMetallicRoughness':{'baseColorFactor':[.52,.52,.52,1],'metallicFactor':1,'roughnessFactor':.13},'normalTexture':{'index':1,'scale':.2},'extensions':{'KHR_materials_iridescence':{'iridescenceFactor':.22,'iridescenceIor':1.38,'iridescenceThicknessMinimum':380,'iridescenceThicknessMaximum':380},'KHR_materials_anisotropy':{'anisotropyStrength':.8},'KHR_materials_clearcoat':{'clearcoatFactor':.12,'clearcoatRoughnessFactor':.07}}},
+ {'name':'CLEAR_XBOX360_POLYCARBONATE','alphaMode':'BLEND','pbrMetallicRoughness':{'baseColorFactor':[.92,.95,1,.22],'metallicFactor':0,'roughnessFactor':.06},'extensions':{'KHR_materials_transmission':{'transmissionFactor':.95},'KHR_materials_ior':{'ior':1.58}}},
+ {'name':'XBOX360_HOLOGRAPHIC_AUTHENTICATION_RING','doubleSided':True,'pbrMetallicRoughness':{'baseColorTexture':{'index':2},'metallicFactor':1,'roughnessFactor':.19},'normalTexture':{'index':1,'scale':.12},'extensions':{'KHR_materials_iridescence':{'iridescenceFactor':.9,'iridescenceIor':1.42,'iridescenceThicknessMinimum':440,'iridescenceThicknessMaximum':440}}},
+ {'name':'XBOX360_DARK_SMOOTH_RIM','pbrMetallicRoughness':{'baseColorFactor':[.002,.002,.002,1],'metallicFactor':1,'roughnessFactor':.23}},
+ {'name':'XBOX360_CLEAR_MOULDED_RINGS','alphaMode':'BLEND','pbrMetallicRoughness':{'baseColorFactor':[.8,.85,.95,.28],'metallicFactor':0,'roughnessFactor':.09}},
+ {'name':'XBOX360_DARK_MASTERING_BAND','pbrMetallicRoughness':{'baseColorFactor':[.12,.12,.12,1],'metallicFactor':1,'roughnessFactor':.22}},
+ {'name':'XBOX360_MASTERING_REFLECTIVE_BARS','pbrMetallicRoughness':{'baseColorFactor':[.52,.52,.52,1],'metallicFactor':1,'roughnessFactor':.13},'extensions':{'KHR_materials_iridescence':{'iridescenceFactor':.4,'iridescenceIor':1.38,'iridescenceThicknessMinimum':380,'iridescenceThicknessMaximum':380}}}
+]
+g['materials'][3]['extensions']['KHR_materials_iridescence'].update(iridescenceThicknessMinimum=200,iridescenceThicknessMaximum=700,iridescenceThicknessTexture={'index':3})
+def surface(name,profile,mat,angle_ranges=None):
+ p=[];norm=[];uv=[];tan=[];idx=[];resolution=2048 if mat==4 else 1024
+ for start,end in (angle_ranges or [(0,360)]):
+  N=max(2,math.ceil((end-start)/360*resolution))
+  for (ra,za),(rb,zb) in zip(profile,profile[1:]):
+   dr=rb-ra;dz=zb-za;length=math.hypot(dr,dz);base=len(p)
+   for i in range(N+1):
+    a=math.radians(start+(end-start)*i/N);c=math.cos(a);s=math.sin(a)
+    for rr,zz in [(ra,za),(rb,zb)]:
+     p.append((rr*c,zz,rr*s));norm.append((dz/length*c,-dr/length,dz/length*s));uv.append((.5+(-1 if mat in (0,3) else 1)*rr*c/.12,.5-rr*s/.12));tan.append((-s,0,c,1))
+   for i in range(N):
+    k=base+2*i;idx.extend([k,k+1,k+3,k,k+3,k+2])
+ attrs={'POSITION':acc(p,'VEC3'),'NORMAL':acc(norm,'VEC3'),'TEXCOORD_0':acc(uv,'VEC2'),'TANGENT':acc(tan,'VEC4')}
+ g['meshes'].append({'name':name,'primitives':[{'attributes':attrs,'indices':acc(idx,'SCALAR',True),'material':mat}]})
+ g['nodes'].append({'name':name,'mesh':len(g['meshes'])-1,'rotation':[-math.sqrt(.5),0,0,math.sqrt(.5)],'translation':[0,.06,0]});g['scenes'][0]['nodes'].append(len(g['nodes'])-1)
+surface('01_Xbox360_Replaceable_Artwork',[(.0587,.00061),(.0173,.00061)],0)
+surface('02_Xbox360_Silver_Underside',[(.0173,-.0006),(.0594,-.0006)],1)
+surface('03_Xbox360_Clear_Outer_Bevel',[(.0594,-.0006),(.0598,-.0006),(.06,-.0004),(.06,.0004),(.0598,.0006),(.0594,.0006)],2)
+surface('04_Xbox360_Clear_Hub',[(.0125,.0006),(.0075,.0006),(.0075,-.0006),(.0125,-.0006)],2)
+for i,(r,w) in enumerate([(.0081,.0001),(.0101,.00008),(.0122,.00008)]):surface('05_Xbox360_Moulded_Ring_'+str(i),[(r-w,-.000605),(r-w,-.0007),(r+w,-.0007),(r+w,-.000605)],5)
+surface('06_Xbox360_Holographic_Center',[(.0173,.00064),(.0125,.00064)],3)
+surface('07_Xbox360_Smooth_Dark_Rim',[(.059,-.000605),(.0593,-.000605),(.0593,.000605),(.059,.000605),(.059,-.000605)],4)
+surface('08_Xbox360_Hologram_Outer_Boundary',[(.0173,.00068),(.0171,.00068)],4)
+surface('09_Xbox360_Reverse_Holographic_Center',[(.0125,-.00064),(.0173,-.00064)],3)
+surface('10_Xbox360_Back_Mastering_Band',[(.01765,-.00066),(.022,-.00066)],6)
+surface('11_Xbox360_Back_Hologram_Chrome_Lip',[(.0173,-.00064),(.01745,-.00072),(.01765,-.00064)],1)
+# Two narrow barcode rows, with reflective bars rather than white ink.
+import random
+random.seed(360);bars=[]
+for start,end in [(55,125),(235,305)]:
+ angle=start
+ while angle<end:
+  width=random.choice([.14,.2,.28,.42,.6]);bars.append((angle,min(end,angle+width)));angle+=width+random.choice([.18,.25,.4,.65])
+surface('12_Xbox360_Mastering_Barcode_Outer_Row',[(.02115,-.00072),(.0218,-.00072)],7,bars)
+surface('13_Xbox360_Mastering_Barcode_Inner_Row',[(.0207,-.00072),(.021,-.00072)],7,[(a+.07,b+.07) for a,b in bars])
+g['buffers'][0]['byteLength']=len(blob);js=json.dumps(g,separators=(',',':')).encode();js+=b' '*((-len(js))%4);blob+=b'\0'*((-len(blob))%4)
+data=struct.pack('<III',0x46546c67,2,12+8+len(js)+8+len(blob))+struct.pack('<II',len(js),0x4e4f534a)+js+struct.pack('<II',len(blob),0x004e4942)+blob
+(OUT/'xbox360-silver-disc.glb').write_bytes(data)
+print('Xbox 360 model:',len(g['meshes']),'parts;',len(data),'bytes')

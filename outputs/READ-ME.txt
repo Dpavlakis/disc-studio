@@ -8,14 +8,15 @@ ps2-blue-disc.glb: cobalt blue underside matching the supplied references.
 ps2-silver-disc.glb: silver finish.
 ps2-gold-disc.glb: gold finish.
 ps1-black-disc.glb: glossy near-black finish.
+xbox360-silver-disc.glb: silver Xbox 360 model with holographic center, supplied Xbox SVG and X360 font.
 All files embed their textures and use meters: 120 mm diameter, 15 mm center hole, 1.2 mm nominal thickness (moulded rings extend slightly).
-Fifteen separate parts: top artwork, underside, edge, hub, three moulded rings and an independent etched branding/matrix ring, plus the PS2 label band above the replaceable artwork and a solid dark perimeter ring visible from both sides, plus three smooth matrix boundary/separator rings and geometric barcode backing/bars. Discs stand upright on the rim at Y=0 in glTF. Artwork faces -Z; reflective underside faces +Z.
+PS models have sixteen separate parts: top artwork, underside, edge, hub, three moulded rings and an independent etched branding/matrix ring, plus the PS2 label band above the replaceable artwork and a solid dark perimeter ring visible from both sides, plus three smooth matrix boundary/separator rings and geometric barcode backing/bars. Discs stand upright on the rim at Y=0 in glTF. Artwork faces -Z; reflective underside faces +Z.
 
 INNER BRANDING
 The underside has an independent metallic etched ring with repeated PlayStation wordmarks and PS monograms rendered from your supplied SVG files and representative matrix/barcode marks. It remains in place when top art changes. The logo shapes come from the supplied SVGs; the ring layout is recreated rather than scanned from a particular pressing. Original SVGs are included in branding-source. The placeholder matrix text is illustrative.
 
 REPLACE ART IN A 3D APP
-Assign your image to Base Color in TOP_ART_REPLACE_THIS_TEXTURE. UVs are already set up as a centered square. Use a 2048x2048 or larger square image. Printed artwork is clipped at 48.92% of image width, leaving the reflective rim and clear bevel exposed and the label inner radius is 9.5%. The hole and clear hub are real geometry, so the image need not contain a cutout. Keep image orientation as supplied; rotate the texture if your artwork needs a different alignment.
+Assign your image to Base Color in TOP_ART_REPLACE_THIS_TEXTURE. UVs are already set up as a centered square. Use a 2048x2048 or larger square image. Printed artwork is clipped at 48.92% of image width, leaving the reflective rim and clear bevel exposed and the label inner radius is 9.5% for PS models and 14.42% for Xbox 360. Xbox 360 top artwork begins outside its holographic band. The hole and clear hub are real geometry, so the image need not contain a cutout. Keep image orientation as supplied; rotate the texture if your artwork needs a different alignment.
 label-art.png is a placeholder/template. Changing it alone does NOT update the embedded GLB: reassign the image in your 3D app, or use the browser preview and export.
 
 LIGHT RESPONSE
