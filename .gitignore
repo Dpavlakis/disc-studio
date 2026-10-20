@@ -1,0 +1,6 @@
+outputs/*.zip
+__pycache__/
+*.pyc
+node_modules/
+.venv/
+work/measure_barcode.py

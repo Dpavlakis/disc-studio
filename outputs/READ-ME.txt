@@ -1,0 +1,25 @@
+OPTICAL DISC MODEL PACK
+
+Open disc-preview.html in a browser. First use needs internet for the viewer library.
+Select Blue, Silver, Gold or Black. Drag to inspect the light response. Choose a square image under Top artwork, then Download edited GLB to save your customized model.
+
+MODELS
+ps2-blue-disc.glb: cobalt blue underside matching the supplied references.
+ps2-silver-disc.glb: silver finish.
+ps2-gold-disc.glb: gold finish.
+ps1-black-disc.glb: glossy near-black finish.
+All files embed their textures and use meters: 120 mm diameter, 15 mm center hole, 1.2 mm nominal thickness (moulded rings extend slightly).
+Fifteen separate parts: top artwork, underside, edge, hub, three moulded rings and an independent etched branding/matrix ring, plus the PS2 label band above the replaceable artwork and a solid dark perimeter ring visible from both sides, plus three smooth matrix boundary/separator rings and geometric barcode backing/bars. Discs stand upright on the rim at Y=0 in glTF. Artwork faces -Z; reflective underside faces +Z.
+
+INNER BRANDING
+The underside has an independent metallic etched ring with repeated PlayStation wordmarks and PS monograms rendered from your supplied SVG files and representative matrix/barcode marks. It remains in place when top art changes. The logo shapes come from the supplied SVGs; the ring layout is recreated rather than scanned from a particular pressing. Original SVGs are included in branding-source. The placeholder matrix text is illustrative.
+
+REPLACE ART IN A 3D APP
+Assign your image to Base Color in TOP_ART_REPLACE_THIS_TEXTURE. UVs are already set up as a centered square. Use a 2048x2048 or larger square image. Printed artwork is clipped at 48.92% of image width, leaving the reflective rim and clear bevel exposed and the label inner radius is 9.5%. The hole and clear hub are real geometry, so the image need not contain a cutout. Keep image orientation as supplied; rotate the texture if your artwork needs a different alignment.
+label-art.png is a placeholder/template. Changing it alone does NOT update the embedded GLB: reassign the image in your 3D app, or use the browser preview and export.
+
+LIGHT RESPONSE
+Blue metallic material, glossy clearcoat, concentric micro-normal texture, radial anisotropy and glTF iridescence. Use an HDRI/studio environment with bright strip lights for reflections. Rainbow response is an artistic approximation of optical-disc diffraction, not a spectral diffraction simulation. Exact blue appearance depends on lighting, exposure and renderer. Apps without the optional glTF material extensions show a simpler blue metallic surface. Hub transmission may also vary by renderer.
+
+BLENDER
+In Blender 4.x or later, open the Scripting workspace, load create-blender-scene.py from this folder, then Run Script. Keep the GLBs and PNGs beside it. It imports the blue model, builds an editable view-dependent underside material, adds lights and a camera, packs images, and saves ps2-disc-studio.blend beside the files. Existing scene objects are preserved. Render with F12. The Blender setup script has been syntax checked but was not run here because Blender is unavailable. Browser viewer is the portable preview.

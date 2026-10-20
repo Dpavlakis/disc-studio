@@ -1,0 +1,4 @@
+Built-in image editing tool used.
+Edit prompt: Prepare a precisely aligned square flat upload-ready label texture from the supplied 007 image. Preserve the red game illustration, title, typography, publisher/rating marks and fine print. Remove the silver perimeter, plastic center hub and exterior background to transparency. Center the transparent hole at 9.5% of square width. Keep the bottom band solid black, removing its PlayStation 2 lettering and white divider because the model supplies them separately. Preserve orientation; add no shadows or imagery.
+
+This is an AI-cleaned preview texture. Small lettering may differ from the original. Use Top artwork in disc-preview.html to load 007-from-russia-with-love-upload.png. Keep Show artwork enabled; the model adds the bottom PlayStation 2 wordmark.

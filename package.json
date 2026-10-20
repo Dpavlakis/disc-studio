@@ -1,0 +1,12 @@
+{
+  "name": "ps2-disc-studio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Editable reflective optical disc models and local preview studio",
+  "scripts": {
+    "logos": "node work/render_logos.cjs",
+    "build": "python work/build_disc.py && python work/package.py",
+    "preview": "python -m http.server 8000"
+  },
+  "dependencies": { "sharp": "^0.34.3" }
+}
