@@ -2,22 +2,33 @@ from pathlib import Path
 import base64,json,struct,zipfile,ast
 root=Path(__file__).resolve().parents[1]/'outputs'
 models={p.stem:base64.b64encode(p.read_bytes()).decode() for p in root.glob('*.glb')}
+lightmaps={str(i):'data:application/octet-stream;base64,'+base64.b64encode((root/'lighting'/f'{i}-softbox.hdr').read_bytes()).decode() for i in range(1,5)}
 html='''<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Optical disc studio</title>
 <script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer@4.0.0/dist/model-viewer.min.js"></script>
 <style>body{margin:0;background:#15171d;color:#eee;font:16px system-ui}header{padding:24px;max-width:1000px;margin:auto}h1{font-size:28px;margin:0 0 12px}p{color:#bfc4d1}nav{display:flex;gap:12px;flex-wrap:wrap}button,label{padding:10px 16px;border:1px solid #5d6578;border-radius:6px;background:#252b38;color:white;font:inherit;cursor:pointer}button:focus-visible,label:focus-within{outline:2px solid #8dabff}input{max-width:240px}model-viewer{width:100%;height:68vh;min-height:360px;background:radial-gradient(#404755,#171a22)}#status{min-height:24px}</style>
 <header><h1>Optical disc studio</h1><p>Drag to rotate · scroll to zoom · right drag to pan. Turn the disc to see its artwork.</p><nav>
 <button data-finish="ps2-blue-disc">Blue CD</button><button data-finish="ps2-silver-disc">Silver DVD</button><button data-finish="ps2-gold-disc">Gold DVD</button><button data-finish="ps1-black-disc">Black CD</button>
 <button id="front-view" type="button">Front view</button><button id="back-view" type="button">Back view</button><button id="download-png" type="button" disabled>Download PNG</button>
+<button id="zoom-out" type="button" aria-label="Zoom out">−</button><label>Zoom <input id="zoom" type="range" min="0.5" max="12" value="1" step="0.1"><output id="zoom-value">1.0×</output></label><button id="zoom-in" type="button" aria-label="Zoom in">+</button><button id="fit-view" type="button">Fit disc</button><button id="fullscreen" type="button">Full screen</button>
+<label>Lights <select id="lights"><option value="neutral">Studio</option><option value="1">1 softbox</option><option value="2">2 softboxes</option><option value="3">3 softboxes</option><option value="4">4 softboxes</option></select></label><label>Brightness <input id="brightness" type="range" min="0.3" max="2" value="1.1" step="0.05"></label>
 <label>Top artwork <input id="art" type="file" accept="image/*"></label><label><input id="show-art" type="checkbox" checked> Show artwork</label><button id="export">Download edited GLB</button></nav><p id="status" role="status">Loading. First use requires internet for the 3D viewer.</p></header>
-<style>.disc-viewport{position:relative;width:100%;height:68vh;min-height:360px;overflow:hidden}.disc-viewport model-viewer{position:absolute;left:0;top:0;width:200%;height:200%;min-height:0;transform:scale(.5);transform-origin:top left}</style>
-<div class="disc-viewport"><model-viewer id="disc" camera-controls camera-orbit="25deg 80deg 0.20m" field-of-view="35deg" environment-image="neutral" exposure="1.1" shadow-intensity="0" interaction-prompt="none" alt="Reflective optical disc with replaceable top artwork"></model-viewer></div>
+<style>html{height:100%}body{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}header{box-sizing:border-box;max-width:none;width:100%;padding:12px 18px}h1{font-size:20px;margin:0 0 5px}header p{font-size:13px;margin:5px 0 9px}nav{gap:7px}button,label{font-size:13px;padding:7px 10px}label{display:inline-flex;align-items:center;gap:7px}input[type=range]{width:110px}select{background:#252b38;color:#eee;border:1px solid #68748b;border-radius:4px;padding:4px}output{min-width:34px}#status{margin:7px 0 0;min-height:18px}.disc-viewport{position:relative;width:100%;flex:1;min-height:520px;overflow:hidden}.disc-viewport model-viewer{position:absolute;left:0;top:0;width:200%;height:200%;min-height:0;transform:scale(.5);transform-origin:top left}.disc-viewport:fullscreen{width:100vw;height:100vh;background:#171a22}@media(max-width:600px){header{padding:10px}.disc-viewport{min-height:65vh}input[type=range]{width:90px}}</style>
+<div class="disc-viewport"><model-viewer id="disc" camera-controls camera-orbit="25deg 80deg 0.23m" min-camera-orbit="auto auto 0.065m" max-camera-orbit="auto auto 1m" min-field-of-view="2deg" max-field-of-view="60deg" field-of-view="35deg" environment-image="neutral" exposure="1.1" shadow-intensity="0" interaction-prompt="none" alt="Reflective optical disc with replaceable top artwork"></model-viewer></div>
 <script>const models=MODELS; const v=document.getElementById('disc'); const s=document.getElementById('status');let artURL;
+const lightmaps=LIGHTMAPS;const lightChoice=document.getElementById('lights');let lightURL;
+lightChoice.onchange=async()=>{try{const value=lightChoice.value;if(lightURL){URL.revokeObjectURL(lightURL);lightURL=null}if(value==='neutral'){v.environmentImage='neutral'}else{const binary=atob(lightmaps[value].split(',')[1]);const bytes=Uint8Array.from(binary,c=>c.charCodeAt(0));lightURL=URL.createObjectURL(new Blob([bytes],{type:'application/octet-stream'}));v.environmentImage=lightURL+'#.hdr'}await v.updateComplete;s.textContent=value==='neutral'?'Studio lighting selected.':value+' softbox light'+(value==='1'?'':'s')+' selected.'}catch(err){v.environmentImage='neutral';s.textContent='Could not load lights; studio lighting restored.'}};
+document.getElementById('brightness').oninput=e=>{v.exposure=Number(e.target.value)};
+const zoom=document.getElementById('zoom');const zoomValue=document.getElementById('zoom-value');
+function changeZoom(value){value=Math.max(.5,Math.min(12,value));zoom.value=value;zoomValue.textContent=value.toFixed(1)+'×';v.fieldOfView=(2*Math.atan(Math.tan(35*Math.PI/360)/value)*180/Math.PI)+'deg'}
+zoom.oninput=()=>changeZoom(Number(zoom.value));document.getElementById('zoom-in').onclick=()=>changeZoom(Number(zoom.value)*1.35);document.getElementById('zoom-out').onclick=()=>changeZoom(Number(zoom.value)/1.35);
+document.getElementById('fit-view').onclick=()=>{const orbit=v.getCameraOrbit();v.cameraTarget='0m 0.06m 0m';v.cameraOrbit=orbit.theta+'rad '+orbit.phi+'rad 0.23m';changeZoom(1)};
+document.getElementById('fullscreen').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.querySelector('.disc-viewport').requestFullscreen()}catch(err){s.textContent='Full screen is unavailable in this browser.'}};
 // Supersample at twice the displayed width/height and keep the native renderer
 // at full resolution, including while orbiting. CSS downsamples the final image.
 customElements.whenDefined('model-viewer').then(()=>{customElements.get('model-viewer').minimumRenderScale=1});
 const pngButton=document.getElementById('download-png');
 function saveBlob(blob,name){const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),10000)}
-async function setView(theta){await customElements.whenDefined('model-viewer');v.cameraTarget='0m 0.06m 0m';v.cameraOrbit=theta+'deg 90deg 0.23m';v.fieldOfView='35deg';await v.updateComplete;v.jumpCameraToGoal();s.textContent=theta===180?'Front view — artwork side.':'Back view — reflective underside.'}
+async function setView(theta){await customElements.whenDefined('model-viewer');v.cameraTarget='0m 0.06m 0m';v.cameraOrbit=theta+'deg 90deg 0.23m';changeZoom(1);await v.updateComplete;v.jumpCameraToGoal();s.textContent=theta===180?'Front view — artwork side.':'Back view — reflective underside.'}
 document.getElementById('front-view').onclick=()=>setView(180);
 document.getElementById('back-view').onclick=()=>setView(0);
 pngButton.onclick=async()=>{pngButton.disabled=true;try{if(!v.loaded)throw new Error('Wait for the disc to finish loading.');await v.updateComplete;v.jumpCameraToGoal();await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));const blob=await v.toBlob({mimeType:'image/png',idealAspect:false});if(!blob)throw new Error('The image could not be captured.');saveBlob(blob,'disc-view.png');s.textContent='PNG downloaded with a transparent background, using the current angle and artwork.'}catch(err){s.textContent='PNG export failed: '+err.message}finally{pngButton.disabled=!v.loaded}};
@@ -32,7 +43,7 @@ document.querySelectorAll('[data-finish]').forEach(b=>b.onclick=()=>{s.textConte
 document.getElementById('art').onchange=async e=>{if(!e.target.files[0])return;if(artURL)URL.revokeObjectURL(artURL);artURL=URL.createObjectURL(e.target.files[0]);try{await applyArt();s.textContent='Artwork replaced. Download edited GLB to keep it.'}catch(err){s.textContent='Could not apply artwork: '+err.message}};
 document.getElementById('export').onclick=async()=>{try{const blob=await v.exportScene();const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='custom-disc.glb';a.click();setTimeout(()=>URL.revokeObjectURL(url),10000)}catch(err){s.textContent='Export failed: '+err.message}};
 v.src='data:model/gltf-binary;base64,'+models['ps2-blue-disc'];</script></html>'''
-(root/'disc-preview.html').write_text(html.replace('MODELS',json.dumps(models)),encoding='utf-8')
+(root/'disc-preview.html').write_text(html.replace('MODELS',json.dumps(models)).replace('LIGHTMAPS',json.dumps(lightmaps)),encoding='utf-8')
 (root/'READ-ME.txt').write_text('''OPTICAL DISC MODEL PACK
 
 Open disc-preview.html in a browser. First use needs internet for the viewer library.
@@ -70,3 +81,4 @@ with zipfile.ZipFile(root/'optical-disc-pack.zip','w',zipfile.ZIP_DEFLATED) as z
  for p in root.rglob('*'):
   if p.is_file() and p.suffix!='.zip':z.write(p,p.relative_to(root))
 print('Packaged', (root/'optical-disc-pack.zip').stat().st_size, 'bytes')
+

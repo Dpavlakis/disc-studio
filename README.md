@@ -11,6 +11,8 @@ Open `outputs/disc-preview.html` in a browser. It embeds the four models and nee
 - **Front view** and **Back view** frame the disc straight on.
 - **Download PNG** captures the current view with transparency.
 - **Download edited GLB** exports the customized 3D model.
+- The expanded viewer supports **Full screen**, **Fit disc**, and zoom buttons/a slider up to 12×.
+- **Lights** selects the original studio environment or 1–4 HDR softboxes; **Brightness** adjusts their overall exposure. PNG exports include the chosen lighting. GLB exports preserve model materials; lighting is a viewer setting.
 
 The preview uses 2× supersampling and maintains full rendering resolution. Appearance depends on the browser, GPU and lighting. The underside's rainbow response is an artistic approximation of optical disc diffraction.
 

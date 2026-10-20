@@ -5,7 +5,7 @@
   "description": "Editable reflective optical disc models and local preview studio",
   "scripts": {
     "logos": "node work/render_logos.cjs",
-    "build": "python work/build_disc.py && python work/package.py",
+    "build": "python work/make_lighting.py && python work/build_disc.py && python work/package.py",
     "preview": "python -m http.server 8000"
   },
   "dependencies": { "sharp": "^0.34.3" }
