@@ -10,11 +10,12 @@ def stamp(tile,r,angle):
  a=math.radians(angle);x=C+math.sin(a)*r*scale;y=C-math.cos(a)*r*scale
  foil.paste(tile,(round(x-tile.width/2),round(y-tile.height/2)),tile)
 logo=Image.open(ROOT/'work'/'xbox-logo.png').convert('RGBA').resize((155,155),Image.Resampling.LANCZOS)
+logo.putalpha(logo.getchannel('A').point(lambda value:round(value*.2)))
 for angle in range(0,360,90):stamp(logo,.01485,angle)
 for center in [45,135,225,315]:
  text='XBOX 360';adv=[font.getlength(ch) for ch in text];factor=180/math.pi/(.01485*scale);angle=center-sum(adv)*factor/2
  for ch,width in zip(text,adv):
-  tile=Image.new('RGBA',(140,160));ImageDraw.Draw(tile).text((70,80),ch,font=font,fill='#30312f',anchor='mm')
+  tile=Image.new('RGBA',(140,160));ImageDraw.Draw(tile).text((70,80),ch,font=font,fill='#a8aaa6',stroke_width=1,stroke_fill='#777975',anchor='mm')
   stamp(tile,.01485,angle+width*factor/2);angle+=width*factor
 foil.save(OUT/'xbox360-holographic-ring.png')
 foil.crop((int(C-.0178*scale),int(C-.0178*scale),int(C+.0178*scale),int(C+.0178*scale))).resize((1000,1000)).save(OUT/'xbox360-hub-preview.png')
@@ -24,9 +25,19 @@ d.text((1024,590),'YOUR XBOX 360 ART',font=f,fill='#273326',anchor='mm')
 d.text((1024,1460),'Replace this image with your disc artwork',font=ImageFont.truetype('C:/Windows/Fonts/arial.ttf',38),fill='#4b554d',anchor='mm')
 art.save(OUT/'xbox360-label-art.png')
 Image.open(OUT/'groove-normal.png').resize((512,512),Image.Resampling.LANCZOS).save(OUT/'xbox360-groove-normal.png')
-y,x=np.mgrid[:512,:512].astype(np.float32);a=np.arctan2(y-255.5,x-255.5);r=np.hypot(x-255.5,y-255.5)/512
+y,x=np.mgrid[:256,:256].astype(np.float32);a=np.arctan2(y-127.5,x-127.5);r=np.hypot(x-127.5,y-127.5)/256
 film=np.uint8(np.clip(.5+.28*np.sin(a*3)+.14*np.sin(r*90),0,1)*255)
 Image.fromarray(np.stack([film,film,film],axis=-1)).save(OUT/'xbox360-film-thickness.png')
+# Molded lettering is relief in the clear plastic, with no opaque printed color.
+hs=2048;hc=hs/2;hub_mask=Image.new('L',(hs,hs));hf=ImageFont.truetype('C:/Windows/Fonts/arial.ttf',25)
+code='IFPI KKA0';rad=.01095*hs/.12;adv=[hf.getlength(ch) for ch in code];angle=180-sum(adv)/rad*90/math.pi
+for ch,width in zip(code,adv):
+ tile=Image.new('L',(90,90));ImageDraw.Draw(tile).text((45,45),ch,font=hf,fill=255,anchor='mm')
+ mid=angle+width/rad*90/math.pi;tile=tile.rotate(-mid,resample=Image.Resampling.BICUBIC,expand=True)
+ a=math.radians(mid);px=hc+math.sin(a)*rad;py=hc-math.cos(a)*rad
+ hub_mask.paste(tile,(round(px-tile.width/2),round(py-tile.height/2)),tile);angle+=width/rad*180/math.pi
+height=np.asarray(hub_mask,dtype=np.float32)/255;gy,gx=np.gradient(height);nn=np.stack([-gx*.65,gy*.65,np.ones_like(gx)],axis=-1);nn/=np.linalg.norm(nn,axis=-1)[...,None]
+Image.fromarray(np.uint8(np.clip(nn*.5+.5,0,1)*255)).save(OUT/'xbox360-hub-molded-normal.png')
 g={'asset':{'version':'2.0','generator':'Xbox 360 disc studio'},'scene':0,'scenes':[{'nodes':[]}],'nodes':[],'meshes':[],'materials':[],'buffers':[{}],'bufferViews':[],'accessors':[],'images':[],'textures':[],'samplers':[{'magFilter':9729,'minFilter':9987,'wrapS':33071,'wrapT':33071}],'extensionsUsed':['KHR_materials_iridescence','KHR_materials_transmission','KHR_materials_ior','KHR_materials_clearcoat','KHR_materials_anisotropy']}
 blob=bytearray()
 def view(data):
@@ -36,7 +47,7 @@ def acc(data,kind,integer=False):
  a=np.asarray(data,dtype='<u4' if integer else '<f4');v=view(a.tobytes());item={'bufferView':v,'componentType':5125 if integer else 5126,'count':len(a),'type':kind}
  if not integer:item.update(min=a.min(axis=0).tolist(),max=a.max(axis=0).tolist())
  g['accessors'].append(item);return len(g['accessors'])-1
-for name in ['xbox360-label-art.png','xbox360-groove-normal.png','xbox360-holographic-ring.png','xbox360-film-thickness.png']:
+for name in ['xbox360-label-art.png','xbox360-groove-normal.png','xbox360-holographic-ring.png','xbox360-film-thickness.png','xbox360-hub-molded-normal.png']:
  g['images'].append({'bufferView':view((OUT/name).read_bytes()),'mimeType':'image/png','name':name});g['textures'].append({'source':len(g['images'])-1,'sampler':0})
 g['materials']=[
  {'name':'TOP_ART_REPLACE_THIS_TEXTURE','alphaMode':'MASK','pbrMetallicRoughness':{'baseColorTexture':{'index':0},'metallicFactor':0,'roughnessFactor':.36}},
@@ -49,6 +60,7 @@ g['materials']=[
  {'name':'XBOX360_MASTERING_REFLECTIVE_BARS','pbrMetallicRoughness':{'baseColorFactor':[.52,.52,.52,1],'metallicFactor':1,'roughnessFactor':.13},'extensions':{'KHR_materials_iridescence':{'iridescenceFactor':.4,'iridescenceIor':1.38,'iridescenceThicknessMinimum':380,'iridescenceThicknessMaximum':380}}}
 ]
 g['materials'][3]['extensions']['KHR_materials_iridescence'].update(iridescenceThicknessMinimum=200,iridescenceThicknessMaximum=700,iridescenceThicknessTexture={'index':3})
+g['materials'][2]['normalTexture']={'index':4,'scale':1.2}
 def surface(name,profile,mat,angle_ranges=None):
  p=[];norm=[];uv=[];tan=[];idx=[];resolution=2048 if mat==4 else 1024
  for start,end in (angle_ranges or [(0,360)]):

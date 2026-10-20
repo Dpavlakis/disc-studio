@@ -18,6 +18,8 @@ Use the **PS1**, **PS2**, and **Xbox 360** sections to browse their disc models.
 
 The preview uses 2× supersampling and maintains full rendering resolution. Appearance depends on the browser, GPU and lighting. The underside's rainbow response is an artistic approximation of optical disc diffraction.
 
+The Xbox 360 clear hub includes the user-confirmed **IFPI KKA0** molded code as surface relief, without opaque lettering. Its center wordmarks have faint outline treatment; the hologram uses neutral base colors and thin-film response rather than a painted rainbow.
+
 ## Files
 
 - `outputs/*.glb`: portable models with embedded textures; units are meters, 120 mm disc diameter and 15 mm center hole.
