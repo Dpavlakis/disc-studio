@@ -4,3 +4,5 @@ __pycache__/
 node_modules/
 .venv/
 work/measure_barcode.py
+work/cleanup-samples/
+outputs/disc-cleanup-report.csv

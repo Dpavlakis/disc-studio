@@ -41,3 +41,14 @@ npm run build
 The small logo PNGs are already included, so the Node step is optional unless the source SVGs change. The ZIP is generated locally and excluded from Git because its contents are already tracked.
 
 The 007 samples were cleaned and extended with image generation; small lettering may differ from the original source. Supplied PlayStation logos and game artwork remain third-party assets; no ownership or redistribution license is asserted for them.
+
+## Clean a matching disc-art library
+
+`work/clean_disc_library.py` supports the uniform 1280×1280 template used in the supplied library. It removes the pictured hub and perimeter, aligns the printed annulus with bilinear radial resampling, and preserves source lettering without generation or OCR. Original bottom bands stay beneath the model's separate branding overlay. Cleaned files carry a version marker to prevent repeated remapping.
+
+First create samples, then apply only to a backed-up library. `--apply` overwrites PNGs recursively in the selected `Disc` folder, with per-file checks and a CSV report:
+
+```sh
+python work/clean_disc_library.py --source "C:/path/to/Disc" --report outputs/disc-cleanup-report.csv --samples work/cleanup-samples
+python work/clean_disc_library.py --source "C:/path/to/Disc" --report outputs/disc-cleanup-report.csv --apply
+```
