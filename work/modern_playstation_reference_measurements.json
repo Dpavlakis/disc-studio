@@ -1,0 +1,19 @@
+{
+  "reference": "codex-clipboard-0642d7d5-6f3d-4392-96f6-baac834fb3a8.png",
+  "method": "Approximate horizontal diameter ratio from full-disc photograph; perspective and manual edge placement limit precision. 120 mm physical disc used for scale.",
+  "discHorizontalSpanPx": 880,
+  "securityHorizontalSpanPx": 306,
+  "estimatedSecurityOuterRadiusMm": 20.863636363636363,
+  "modelSecurityOuterRadiusMm": 20.9,
+  "previousModelOuterRadiusMm": 21.7,
+  "clearHubOuterRadiusMm": 11.4,
+  "logoRadiusMm": 15.65,
+  "masteringTrackRadiiMm": [
+    19.65,
+    20.75
+  ],
+  "sharedPlatforms": [
+    "ps3",
+    "ps4"
+  ]
+}

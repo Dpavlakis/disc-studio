@@ -1,0 +1,6 @@
+TEST DRAFT ONLY
+Source: supplied WarioWare GameCube scan. Built-in image_gen extraction.
+Selected output exec-ff10371d-32b9-489e-b644-af30bd4eda5e.png.
+Prompt: extract printed ink, remove photographed silver/plastic/hub/security annulus, preserve cyan and lower black print.
+Limitations: lower branding and fine text were straightened relative to original diagonal panel; some metallic logo regions remain dark/grey rather than clean alpha cutouts. Small lettering and edges may be reconstructed. Not suitable as an exact restoration.
+A targeted alpha correction (exec-486bb6bd-2b1f-4906-bcdc-da07969f9299.png) was not selected because it did not fix alignment and added artefacts. A subsequent original-source alignment edit was rejected by the image service safety system, request 8511b1eb-5ebc-4b34-a335-727cfe9ff63b. No further edits made.

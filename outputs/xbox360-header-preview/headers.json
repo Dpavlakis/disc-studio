@@ -1,0 +1,50 @@
+[
+  {
+    "name": "Old Logo",
+    "label": "Classic",
+    "file": "01-header.png",
+    "cut": 372
+  },
+  {
+    "name": "Old Logo - Live",
+    "label": "Classic \u00b7 Xbox Live",
+    "file": "02-header.png",
+    "cut": 372
+  },
+  {
+    "name": "New Top - Live",
+    "label": "New \u00b7 Live wordmark",
+    "file": "03-header.png",
+    "cut": 363
+  },
+  {
+    "name": "New Top - No live",
+    "label": "New \u00b7 No Live",
+    "file": "04-header.png",
+    "cut": 363
+  },
+  {
+    "name": "New Top - Xbox Live",
+    "label": "New \u00b7 Xbox Live",
+    "file": "05-header.png",
+    "cut": 363
+  },
+  {
+    "name": "New Top - Split",
+    "label": "New \u00b7 Split",
+    "file": "06-header.png",
+    "cut": 363
+  },
+  {
+    "name": "Kinect",
+    "label": "Kinect",
+    "file": "07-header.png",
+    "cut": 362
+  },
+  {
+    "name": "Newest Top",
+    "label": "Newest \u00b7 Green waves",
+    "file": "08-header.png",
+    "cut": 374
+  }
+]

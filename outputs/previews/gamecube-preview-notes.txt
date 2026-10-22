@@ -1,0 +1,35 @@
+{
+  "previewOnly": true,
+  "diameterMm": 80,
+  "nominalBodyThicknessMm": 1.2,
+  "centreHoleMm": 15,
+  "hubAndMasteringRadii": "Estimated from supplied photographs; requires review",
+  "securitySequence": "Representative, not decoded",
+  "fineRing": {
+    "innerRadiusMm": 22.12,
+    "outerRadiusMm": 22.75,
+    "marks": 1890,
+    "coverageDegrees": 360,
+    "appearance": "Roughness only, variable widths and gaps"
+  },
+  "lettering": [
+    "DOL-GSSE-0-00 USA S0",
+    "IFPI LL08",
+    "C04K1402",
+    "M1S1"
+  ],
+  "letteringNote": "Transcribed from photos; small suffixes require confirmation",
+  "source": "Nintendo 8 cm specification; ECMA-267/268 nominal optical disc geometry",
+  "hubCodes": {
+    "fictional": true,
+    "values": [
+      "NINTENDO",
+      "IFPI 4A12",
+      "B006C8",
+      "2K38"
+    ],
+    "reliefMm": 0.028,
+    "radiusMm": 9.05
+  }
+}
+Not integrated into the studio. Face/read materials are separate; artwork is a separate alpha layer. No Animal Crossing artwork or Nintendo logo is baked into this model.

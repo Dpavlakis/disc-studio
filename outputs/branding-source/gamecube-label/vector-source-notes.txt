@@ -1,0 +1,1 @@
+GameCube logo and both Nintendo seals use the three SVG files supplied by the user. Original source files retained here. Original outlined lettering and shapes retained; monochrome masks replace baked colours so the 3D metallic material provides live reflections. Rating variants use the ESRB SVGs supplied by the user; see rating-source-notes.txt.

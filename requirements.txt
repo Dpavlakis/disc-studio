@@ -1,2 +1,5 @@
 numpy
 Pillow
+
+shapely>=2.1
+fonttools

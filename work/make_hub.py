@@ -2,15 +2,15 @@ from PIL import Image,ImageDraw,ImageFont
 from pathlib import Path
 import math,random
 out=Path(__file__).resolve().parents[1]/'outputs'
-S=4096; C=S/2; scale=S/.12
+S=8192; C=S/2; scale=S/.12
 im=Image.new('RGB',(S,S),'#ffffff'); d=ImageDraw.Draw(im)
 def ring(r,w,color):
  r*=scale; d.ellipse((C-r,C-r,C+r,C+r),outline=color,width=max(1,int(w*scale)))
 for r,w,col in [(.0195,.0081,'#111111')]:ring(r,w,col)
-font=ImageFont.truetype('C:/Windows/Fonts/arial.ttf',64)
-tiny=ImageFont.truetype('C:/Windows/Fonts/arial.ttf',27)
+font=ImageFont.truetype('C:/Windows/Fonts/arial.ttf',128)
+tiny=ImageFont.truetype('C:/Windows/Fonts/arial.ttf',54)
 def stamp(text,r,angle,font,color):
- tile=Image.new('RGBA',(1000,180)); td=ImageDraw.Draw(tile); td.text((500,90),text,font=font,fill=color,anchor='mm')
+ tile=Image.new('RGBA',(2000,360)); td=ImageDraw.Draw(tile); td.text((1000,180),text,font=font,fill=color,anchor='mm')
  if text=='0' and 'OCR' in font.getname()[0]:
   td.line((491,102,509,78),fill=color,width=2)
  tile=tile.rotate(-angle,resample=Image.Resampling.BICUBIC,expand=True)
@@ -19,7 +19,7 @@ def stamp(text,r,angle,font,color):
 for filename,angles in [('ps2-wordmark.png',[0,120,240]),('ps-logo.png',[60,180,300])]:
  source=Image.open(Path(__file__).parent/filename).convert('RGBA')
  # Match the reference's compact, alternating marks on the same radial centerline.
- width=420 if filename=='ps2-wordmark.png' else 120
+ width=840 if filename=='ps2-wordmark.png' else 240
  source=source.resize((width,round(source.height*width/source.width)),Image.Resampling.LANCZOS)
  source.putalpha(source.getchannel('A').point(lambda x:round(x*.62)))
  for angle in angles:
@@ -27,9 +27,9 @@ for filename,angles in [('ps2-wordmark.png',[0,120,240]),('ps-logo.png',[60,180,
   a=math.radians(angle); px=C+math.sin(a)*.0147*scale; py=C-math.cos(a)*.0147*scale
   im.paste(tile,(round(px-tile.width/2),round(py-tile.height/2)),tile)
 # Compact matrix lettering with true glyph advances, rather than fixed wide tracking.
-matrix=ImageFont.truetype('C:/Windows/Fonts/OCRAEXT.TTF',47)
-matrix_small=ImageFont.truetype('C:/Windows/Fonts/OCRAEXT.TTF',31)
-serif=ImageFont.truetype('C:/Windows/Fonts/timesbd.ttf',31)
+matrix=ImageFont.truetype('C:/Windows/Fonts/OCRAEXT.TTF',94)
+matrix_small=ImageFont.truetype('C:/Windows/Fonts/OCRAEXT.TTF',62)
+serif=ImageFont.truetype('C:/Windows/Fonts/timesbd.ttf',62)
 def arc_text(text,r,center,font):
  widths=[font.getlength(ch) for ch in text]
  factor=180/math.pi/(r*scale); angle=center-sum(widths)*factor/2
@@ -52,7 +52,7 @@ def sector(start,end,ri,ro,color):
 # logos are apertures revealing the reflective substrate beneath.
 import numpy as np
 rgb=np.asarray(im)
-opacity=np.where(rgb.mean(axis=2)<40,255,0).astype(np.uint8)
+opacity=np.uint8(np.clip((100-rgb.mean(axis=2))/60,0,1)*255)
 im=im.convert('RGBA');im.putalpha(Image.fromarray(opacity))
 im.save(out/'hub-branding.png')
 # Green roughness channel gives the etched lettering a different light response.
@@ -60,4 +60,4 @@ import numpy as np
 a=rgb; light=a.mean(axis=2)>100
 rough=np.empty_like(a); rough[:,:,0]=255;rough[:,:,1]=np.where(light,40,65);rough[:,:,2]=255
 Image.fromarray(rough).save(out/'hub-metal-roughness.png')
-im.crop((int(C-.0235*scale),int(C-.0235*scale),int(C+.0235*scale),int(C+.0235*scale))).resize((1000,1000)).save(out/'hub-detail-preview.png')
+im.crop((int(C-.0235*scale),int(C-.0235*scale),int(C+.0235*scale),int(C+.0235*scale))).resize((1000,1000)).save(out/'previews/hub-detail-preview.png')

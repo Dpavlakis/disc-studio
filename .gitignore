@@ -10,3 +10,9 @@ outputs/site/
 outputs/007-cleanup-notes.txt
 outputs/007-from-russia-with-love-filled.png
 outputs/007-from-russia-with-love-upload.png
+
+work/psd-deps/
+work/vector-deps/
+
+# Large generated browser bundle is distributed as a release asset.
+outputs/studio.html

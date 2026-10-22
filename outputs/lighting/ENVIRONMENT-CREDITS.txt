@@ -1,0 +1,18 @@
+Photographic HDRI environments from Poly Haven, released under CC0.
+License: https://polyhaven.com/license
+Resolution: 2048 x 1024 (2K), Radiance HDR.
+
+Living room · Window light
+https://polyhaven.com/a/lebombo
+
+Office · Daylight
+https://polyhaven.com/a/unfinished_office
+
+Garden · Sunshine
+https://polyhaven.com/a/garden_nook
+
+Forest · Dappled shade
+https://polyhaven.com/a/forest_slope
+
+Waterfront · Sunset
+https://polyhaven.com/a/venice_sunset

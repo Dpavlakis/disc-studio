@@ -1,12 +1,15 @@
 {
-  "name": "ps2-disc-studio",
+  "name": "disc-studio",
   "version": "1.0.0",
   "private": true,
   "description": "Editable reflective optical disc models and local preview studio",
   "scripts": {
     "logos": "node work/render_logos.cjs && node work/render_xbox_logo.cjs",
-    "build": "python work/make_lighting.py && python work/build_disc.py && python work/build_xbox360.py && python work/package.py",
-    "preview": "python -m http.server 8000"
+    "build": "python work/package.py",
+    "preview": "python -m http.server 8000 --bind 127.0.0.1 --directory outputs",
+    "test": "node work/check_gamecube_label.cjs && node work/check_disc_object_rotation.cjs && node work/check_environments.cjs && node work/check_live_artwork.cjs && node work/check_console_controls.cjs && node work/check_artwork_controls.cjs && python work/check_disc_geometry.py && python work/check_gamecube_rear_reference.py && python work/check_original_xbox_mastering.py && python work/check_xbox360_mastering.py && python work/check_modern_playstation.py && python work/check_bare_front_surfaces.py && python work/check_artwork_depth_and_microetch.py && python work/check_printed_ink.py"
   },
-  "dependencies": { "sharp": "^0.34.3" }
+  "dependencies": {
+    "sharp": "^0.34.3"
+  }
 }

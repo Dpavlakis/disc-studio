@@ -1,0 +1,27 @@
+const fs=require('fs'),vm=require('vm'),assert=require('assert');
+const fields=new Map(),paints=[];let uploads=0;
+const el=id=>{if(!fields.has(id))fields.set(id,{value:'',checked:false,textContent:'',setCustomValidity(v){this.validity=v}});return fields.get(id)};
+function material(name){return {name,setAlphaMode(v){this.alpha=v},pbrMetallicRoughness:{baseColorTexture:{setTexture(v){this.texture=v}},setBaseColorFactor(v){this.factor=v}}}}
+const panel=material('GAMECUBE_LABEL_PANEL'),foil=material('GAMECUBE_LABEL_FOIL');
+function canvas(){const calls=[];const c={calls,width:0,height:0};const ctx={setTransform(...x){calls.push(['transform',...x])},clearRect(){calls.length=0},save(){},restore(){},scale(){},translate(){},rotate(a){calls.push(['rotate',a])},beginPath(){},arc(){},clip(){},fillRect(...x){calls.push(['panel',this.fillStyle,...x])},strokeRect(){},drawImage(...x){calls.push(['image',...x,{alpha:this.globalAlpha??1,composite:this.globalCompositeOperation||'source-over'}])},fillText(...x){calls.push(['text',...x])},measureText(s){return {width:s.length*15}}};c.getContext=()=>ctx;paints.push(c);return c}
+const viewer={model:{materials:[panel,foil]},createCanvasTexture(){return {source:{element:canvas(),update(){uploads++}}}}};
+const state={gamecube:{}};const ctx=vm.createContext({document:{activeElement:null,getElementById:el},systemState:state,activeSystem:'gamecube',v:viewer,showArt:{checked:true},s:{},readArtworkImage:async url=>({url}),artworkUpdate:Promise.resolve(),console});
+const assets=fs.readFileSync('outputs/branding-source/gamecube-label/assets.json','utf8');const source=fs.readFileSync('work/gamecube_label_controls.js','utf8').replace('GC_BRANDING_ASSETS',assets);vm.runInContext(source,ctx);const run=code=>vm.runInContext(code,ctx);
+(async()=>{
+ await run('applyGCLabel()');assert.equal(paints.length,2);assert.equal(panel.alpha,'MASK');assert.equal(foil.alpha,'BLEND');assert.equal(paints[1].width,8192);assert.equal(state.gamecube.label.code,'GZWE');assert(paints[1].calls.some(x=>x[0]==='text'&&x[1]==='DL • DOL • GZWE • USA'));
+ const logoDraw=paints[1].calls.find(x=>x[0]==='image');assert(Math.abs(logoDraw[4]/logoDraw[5]-3840/866.1)<1e-9);assert(paints[0].calls.some(x=>x[0]==='image'&&x[1]===paints[1]));assert(decodeURIComponent(logoDraw[1].url).includes('width="3840"'));
+ const logoKnockout=paints[1].calls.filter(x=>x[0]==='image').at(-1).at(-1);assert.equal(logoKnockout.alpha,.50);assert.equal(logoKnockout.composite,'destination-out');const panelKnockout=paints[0].calls.find(x=>x[0]==='image').at(-1);assert.equal(panelKnockout.alpha,1);assert.equal(panelKnockout.composite,'destination-out');
+ const rotations=paints[1].calls.filter(x=>x[0]==='rotate').map(x=>x[1]).filter(value=>Math.abs(value)>1e-10);assert(rotations[1]>0);assert(rotations.at(-1)<0); // Letters follow the tangent of the lower arc.
+ el('gc-game-code').value='gahe';el('gc-game-code').oninput();await run('artworkUpdate');assert.equal(state.gamecube.label.code,'GAHE');assert(paints[1].calls.some(x=>x[1]==='DL • DOL • GAHE • USA'));
+ el('gc-game-code').value='ab!';el('gc-game-code').oninput();assert.equal(state.gamecube.label.code,'GAHE');assert.equal(el('gc-game-code').value,'AB');assert(el('gc-game-code').validity);
+ el('gc-panel-color').value='#542f91';el('gc-panel-color').oninput();await run('artworkUpdate');assert(paints[0].calls.some(x=>x[0]==='panel'&&x[1]==='#542f91'));assert.equal(paints.length,2);
+ el('gc-label-angle').value='-8.5';el('gc-label-angle').oninput();await run('artworkUpdate');for(const c of paints)assert(c.calls.some(x=>x[0]==='rotate'&&Math.abs(x[1]+8.5*Math.PI/180)<1e-9));
+ el('gc-seal').value='quality';el('gc-seal').oninput();await run('artworkUpdate');el('gc-rating').value='t';el('gc-rating').oninput();await run('artworkUpdate');assert.equal(state.gamecube.label.seal,'quality');assert.equal(paints[1].calls.filter(x=>x[0]==='image').length,4);
+ for(const value of ['e','t','m','e-alt','e10','t-alt','m17']){el('gc-rating').value=value;el('gc-rating').oninput();await run('artworkUpdate');assert.equal(state.gamecube.label.rating,value);const draws=paints[1].calls.filter(x=>x[0]==='image');assert.equal(draws.length,4);assert(decodeURIComponent(draws[2][1].url).includes('id="rating-'+value+'"'));}
+ el('gc-rating').value='none';el('gc-rating').oninput();await run('artworkUpdate');assert.equal(paints[1].calls.filter(x=>x[0]==='image').length,3);
+ el('gc-panel-enabled').checked=false;el('gc-panel-enabled').oninput();await run('artworkUpdate');assert.equal(panel.pbrMetallicRoughness.factor[3],0);assert.equal(foil.pbrMetallicRoughness.factor[3],.90);
+ el('gc-label-enabled').checked=false;el('gc-label-enabled').oninput();await run('artworkUpdate');assert.equal(foil.pbrMetallicRoughness.factor[3],0);
+ run("activeSystem='ps2'");await run('applyGCLabel()');assert.equal(state.gamecube.label.code,'GAHE');run("activeSystem='gamecube'");run("document.getElementById('gc-label-reset').onclick()");await run('artworkUpdate');assert.equal(state.gamecube.label.code,'GZWE');assert.equal(state.gamecube.label.angle,0);
+ assert.strictEqual(foil.pbrMetallicRoughness.baseColorTexture.texture.source.element,paints[1]);assert(uploads>10);
+ console.log('Verified GameCube label masks, live panel colour, four-character validation, seal/rating switching, shared rotation, visibility, console memory, reset and baked canvas texture for export.');
+})().catch(e=>{console.error(e);process.exitCode=1});

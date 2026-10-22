@@ -17,21 +17,24 @@ d.text((1024,540),'YOUR DISC ART',font=f,fill='#161a24',anchor='mm')
 d.text((1024,660),'Replace label-art.png with your square artwork',font=small,fill='#414857',anchor='mm')
 d.text((1024,1480),'120 mm  /  BLUE OPTICAL DISC',font=small,fill='#414857',anchor='mm')
 art.save(OUT/'label-art.png')
-badge=Image.new('RGBA',(S,S));bd=ImageDraw.Draw(badge)
-bd.rectangle((0,1643,S,S),fill=(0,0,0,255))
-bd.line((0,1642,S,1642),fill=(240,240,240,255),width=2)
+BS=4096
+badge=Image.new('RGBA',(BS,BS));bd=ImageDraw.Draw(badge)
+bd.rectangle((0,3286,BS,BS),fill=(0,0,0,255))
+bd.line((0,3284,BS,3284),fill=(240,240,240,255),width=4)
 word=Image.open(Path(__file__).parent/'ps2-top-wordmark.png').convert('RGBA')
-word=word.resize((912,round(word.height*912/word.width)),Image.Resampling.LANCZOS)
-badge.alpha_composite(word,((S-word.width)//2,1712))
+word=word.resize((1824,round(word.height*1824/word.width)),Image.Resampling.LANCZOS)
+badge.alpha_composite(word,((BS-word.width)//2,3424))
 # Match the physical label's circular boundary.
-clip=Image.new('L',(S,S));ImageDraw.Draw(clip).ellipse((10,10,S-10,S-10),fill=255)
+clip=Image.new('L',(BS*2,BS*2));ImageDraw.Draw(clip).ellipse((40,40,BS*2-40,BS*2-40),fill=255)
+clip=clip.resize((BS,BS),Image.Resampling.LANCZOS)
 badge.putalpha(Image.fromarray(np.minimum(np.asarray(badge.getchannel('A')),np.asarray(clip))))
 badge.save(OUT/'top-ps2-branding.png')
 # Faint mastering logos belong to the reflective substrate, not a decal layer.
+S=4096
 finish=Image.new('RGB',(S,S),'white')
 mask=Image.new('L',(S,S),0)
 logo=Image.open(Path(__file__).parent/'ps-logo.png').convert('RGBA')
-logo=logo.resize((270,round(logo.height*270/logo.width)),Image.Resampling.LANCZOS)
+logo=logo.resize((540,round(logo.height*540/logo.width)),Image.Resampling.LANCZOS)
 # Registration symbol is part of the supplied SVG geometry.
 for angle in range(20,360,60):
  tile=logo.rotate(-angle,resample=Image.Resampling.BICUBIC,expand=True)
@@ -42,6 +45,7 @@ finish.paste(Image.new('RGB',(S,S),'#f5f5f5'),(0,0),mask)
 finish.save(OUT/'disc-substrate-marks.png')
 mr=np.empty((S,S,3),dtype=np.uint8);mr[:,:,0]=255;mr[:,:,1]=np.uint8(255*.115+np.asarray(mask)*.015);mr[:,:,2]=255
 Image.fromarray(mr).save(OUT/'disc-substrate-roughness.png')
+S=2048
 # Subtle concentric surface micro-normal. No baked highlights or rainbow colors.
 y,x=np.mgrid[0:S,0:S]; x=(x+.5)/S-.5; y=(y+.5)/S-.5
 r=np.sqrt(x*x+y*y); slope=.045*np.sin(r*math.tau*1400)
@@ -65,7 +69,7 @@ g['materials']=[
  {'name':'HUB_MOULDED_RINGS','pbrMetallicRoughness':{'baseColorFactor':[.025,.04,.22,1],'metallicFactor':.6,'roughnessFactor':.2}}
 ]
 g['materials'].append({'name':'ETCHED_PLAYSTATION_INNER_RING','pbrMetallicRoughness':{'baseColorTexture':{'index':2},'metallicFactor':.92,'roughnessFactor':1,'metallicRoughnessTexture':{'index':3}},'extensions':{'KHR_materials_iridescence':{'iridescenceFactor':.6,'iridescenceIor':1.38,'iridescenceThicknessMinimum':320,'iridescenceThicknessMaximum':320},'KHR_materials_clearcoat':{'clearcoatFactor':.7,'clearcoatRoughnessFactor':.09}}})
-g['materials'].append({'name':'TOP_PERMANENT_PS2_BRANDING','alphaMode':'MASK','alphaCutoff':.5,'pbrMetallicRoughness':{'baseColorTexture':{'index':6},'metallicFactor':0,'roughnessFactor':.38}})
+g['materials'].append({'name':'TOP_PERMANENT_PS2_BRANDING','alphaMode':'BLEND','alphaCutoff':.5,'pbrMetallicRoughness':{'baseColorTexture':{'index':6},'metallicFactor':0,'roughnessFactor':.38}})
 g['materials'].append({'name':'SOLID_DARK_OUTER_RING','pbrMetallicRoughness':{'baseColorFactor':[.006,.006,.006,1],'metallicFactor':.15,'roughnessFactor':.23}})
 g['materials'].append({'name':'INNER_RING_REFLECTIVE_SEPARATOR','pbrMetallicRoughness':{'baseColorFactor':[.48,.48,.48,1],'metallicFactor':1,'roughnessFactor':.12}})
 def surface(name,profile,mat,angle_ranges=None):
@@ -121,7 +125,7 @@ g['materials'][4]['pbrMetallicRoughness'].update(baseColorFactor=[.8,.85,.95,.28
 g['materials'][1]['doubleSided']=True
 g['materials'][1]['pbrMetallicRoughness'].update(baseColorTexture={'index':4},metallicRoughnessTexture={'index':5},roughnessFactor=1)
 g['materials'][5]['doubleSided']=True
-g['materials'][5]['alphaMode']='MASK'
+g['materials'][5]['alphaMode']='BLEND'
 g['materials'][5]['alphaCutoff']=.5
 g['materials'][5]['pbrMetallicRoughness']['baseColorFactor']=[.012,.018,.55,1]
 g['materials'][5]['pbrMetallicRoughness']['metallicFactor']=1
@@ -156,3 +160,12 @@ for variant,color,metal,rough,iri in [('silver',[.52,.52,.52,1],1,.16,.14),('gol
  b=struct.pack('<III',0x46546c67,2,12+8+len(j)+8+len(blob))+struct.pack('<II',len(j),0x4e4f534a)+j+struct.pack('<II',len(blob),0x004e4942)+blob
  (OUT/(('ps1-' if variant=='black' else 'ps2-')+variant+'-disc.glb')).write_bytes(b)
 print('Created GLB:',len(glb),'bytes;',len(g['meshes']),'separate mesh parts')
+
+from disc_edge_caps import cap_outer_edge
+for edge_name in ('ps2-blue-disc.glb','ps2-silver-disc.glb','ps2-gold-disc.glb'):cap_outer_edge(OUT/edge_name)
+from playstation_rim_fix import repair_playstation_rim
+for edge_name in ('ps1-black-disc.glb','ps2-blue-disc.glb','ps2-silver-disc.glb','ps2-gold-disc.glb'):repair_playstation_rim(OUT/edge_name)
+from solid_ps2_core import close_ps2_core
+for edge_name in ('ps2-blue-disc.glb','ps2-silver-disc.glb','ps2-gold-disc.glb'):close_ps2_core(OUT/edge_name)
+from refine_ps1 import refine_ps1
+refine_ps1(OUT/'ps1-black-disc.glb')

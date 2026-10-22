@@ -1,0 +1,47 @@
+{
+  "living-room": {
+    "label": "Living room \u00b7 Window light",
+    "file": "living-room.hdr",
+    "asset": "lebombo",
+    "source": "https://polyhaven.com/a/lebombo",
+    "download": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/2k/lebombo_2k.hdr",
+    "license": "CC0",
+    "sha256": "d9581004963990b0e740e26f6468b87903bc2b79c1efd54adfbac985fbf7ec1b"
+  },
+  "office": {
+    "label": "Office \u00b7 Daylight",
+    "file": "office.hdr",
+    "asset": "unfinished_office",
+    "source": "https://polyhaven.com/a/unfinished_office",
+    "download": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/2k/unfinished_office_2k.hdr",
+    "license": "CC0",
+    "sha256": "1684ef00a17abe19213a20c7e58365faa1b895cb89c74201c944bfd72c7c93e7"
+  },
+  "garden": {
+    "label": "Garden \u00b7 Sunshine",
+    "file": "garden.hdr",
+    "asset": "garden_nook",
+    "source": "https://polyhaven.com/a/garden_nook",
+    "download": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/2k/garden_nook_2k.hdr",
+    "license": "CC0",
+    "sha256": "fe1cbe0b62d5a4696626afc7b66d172a8de670b9092af1fdee9302d86748fde1"
+  },
+  "forest": {
+    "label": "Forest \u00b7 Dappled shade",
+    "file": "forest.hdr",
+    "asset": "forest_slope",
+    "source": "https://polyhaven.com/a/forest_slope",
+    "download": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/2k/forest_slope_2k.hdr",
+    "license": "CC0",
+    "sha256": "aa76871c301a2ea5977043e48036b53bb3f26eff0d96fa833789a7738569c279"
+  },
+  "sunset": {
+    "label": "Waterfront \u00b7 Sunset",
+    "file": "sunset.hdr",
+    "asset": "venice_sunset",
+    "source": "https://polyhaven.com/a/venice_sunset",
+    "download": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/2k/venice_sunset_2k.hdr",
+    "license": "CC0",
+    "sha256": "cbfac020ee17ab36016ccc7fbe9020b828587b9864af6ecda0a93089914889a6"
+  }
+}

@@ -1,0 +1,8 @@
+TONY HAWK AMERICAN WASTELAND - TEST RECONSTRUCTION
+
+Upload tony-hawk-american-wasteland-test.png in Disc Studio. Choose GameCube; artwork coverage 100%, rotation 0. Keep GameCube branding on; lower panel #080808; Official Nintendo Seal; alternate Teen T rating (bordered), game code GWJE, branding rotation 0.
+
+The upload contains print only. Clear areas reveal the model foil, hub and security details. No photographed glare, rainbow, scratches, hub or lower branding are baked in. This is a visual test reconstruction, not an archival scan. Title outlines traced from the existing local LaunchBox clear logo; Activision uses the Wikimedia SVG; Neversoft traced from the clearest supplied photograph. Small legal text reconstructed using Arial Narrow outlines and should be checked against the original. Original reference logos remain third-party assets.
+
+Game code source: https://www.gametdb.com/Wii/GWJE52
+Activision source: https://commons.wikimedia.org/wiki/File:Activision.svg

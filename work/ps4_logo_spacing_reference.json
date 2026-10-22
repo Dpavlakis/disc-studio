@@ -1,0 +1,9 @@
+{
+  "reference": "codex-clipboard-20fc2582-2e22-4777-9c37-26a03b82040d.png",
+  "scope": "Radial clearances shown by red marks; keep logo dimensions, angular positions, hub, barcode track and material profiles fixed.",
+  "previousLogoRadiusMm": 15.65,
+  "logoRadiusMm": 14.15,
+  "innerSilverSeamOuterRadiusMm": 11.87,
+  "barcodeTrackInnerRadiusMm": 17.55,
+  "clearanceIntent": "More space toward the outer barcode than toward the inner hub, approximately 1.5 to 2.2 times depending on native logo height."
+}

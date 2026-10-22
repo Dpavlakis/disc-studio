@@ -1,0 +1,1 @@
+Seven ESRB variants imported from the SVGs supplied by the user. Original files retained as supplied-*.svg. White artwork maps to reflective foil; black areas are transparent. Original outlined lettering, shapes, aspect ratios and parent transforms preserved. Default E/T options now use the supplied 1999 outlines rather than scan traces.
