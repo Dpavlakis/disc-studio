@@ -32,8 +32,6 @@ from add_modern_playstation_microetch import update as add_ps_microetch
 for key in ['ps3','ps4']:add_ps_microetch(root/(key+'-silver-disc.glb'))
 from refine_ps1 import update_centre_transparency
 update_centre_transparency(root/'ps1-black-disc.glb')
-from printed_ink_finish import update as apply_printed_ink
-for current_model in root.glob('*.glb'):apply_printed_ink(current_model)
 models={p.stem:base64.b64encode(p.read_bytes()).decode() for p in root.glob('*.glb') if not p.stem.endswith('-preview')}
 lightmaps={str(i):'data:application/octet-stream;base64,'+base64.b64encode((root/'lighting'/f'{i}-softbox.hdr').read_bytes()).decode() for i in range(1,5)}
 environment_presets=json.loads((root/'lighting/environments.json').read_text(encoding='utf-8'))
@@ -42,7 +40,7 @@ for key,preset in environment_presets.items():
 environment_controls_js=(root.parent/'work/environment_controls.js').read_text(encoding='utf-8').replace('LIGHTMAPS',json.dumps(lightmaps)).replace('ENVIRONMENT_PRESETS',json.dumps(environment_presets))
 header_cuts={'classic': 372, 'live-classic': 372, 'live-wordmark': 363, 'no-live': 363, 'live-wide': 363, 'live-split': 363, 'kinect': 362, 'green-waves': 374}
 headers={key:{'url':'data:image/png;base64,'+base64.b64encode((root/'xbox360-headers'/f'{key}.png').read_bytes()).decode(),'cut':cut} for key,cut in header_cuts.items()}
-artwork_controls_js=(root.parent/'work/artwork_controls.js').read_text(encoding='utf-8').replace('PS2_PRINTED_BAND_URL','data:image/png;base64,'+base64.b64encode((root/'top-ps2-branding.png').read_bytes()).decode())
+artwork_controls_js=(root.parent/'work/artwork_controls.js').read_text(encoding='utf-8')
 disc_object_rotation_js=(root.parent/'work/disc_object_rotation.js').read_text(encoding='utf-8')
 ps1_label_controls_js=(root.parent/'work/ps1_label_controls.js').read_text(encoding='utf-8')
 gamecube_label_js=(root.parent/'work/gamecube_label_controls.js').read_text(encoding='utf-8').replace('GC_BRANDING_ASSETS',(root/'branding-source/gamecube-label/assets.json').read_text(encoding='utf-8'))
@@ -86,7 +84,7 @@ pngButton.onclick=async()=>{pngButton.disabled=true;try{if(!v.loaded)throw new E
 v.addEventListener('load',()=>{pngButton.disabled=false});
 v.addEventListener('error',()=>{pngButton.disabled=true});
 const showArt=document.getElementById('show-art');const artTextures=new WeakMap();
-function updateArtwork(){if(!v.model)return;const m=v.model.materials.find(m=>m.name==='TOP_ART_REPLACE_THIS_TEXTURE');if(!m)return;const p=m.pbrMetallicRoughness;if(!artTextures.has(m))artTextures.set(m,p.baseColorTexture.texture);const enabled=showArt.checked&&(activeSystem!=='gamecube'||Boolean(systemState.gamecube.art));p.baseColorTexture.setTexture(enabled?artTextures.get(m):null);m.setAlphaMode(enabled&&activeSystem!=='gamecube'?'MASK':'BLEND');p.setBaseColorFactor(enabled?[1,1,1,activeSystem==='gamecube'?.94:1]:[1,1,1,0]);p.setMetallicFactor(0);p.setRoughnessFactor(.52);const badge=v.model.materials.find(m=>m.name==='TOP_PERMANENT_PS2_BRANDING');if(badge){badge.setAlphaMode('BLEND');badge.pbrMetallicRoughness.setBaseColorFactor([1,1,1,enabled&&systemState[activeSystem].branding!==false?1:0])}applyPS1LabelStyle();applyPrintTexture()}
+function updateArtwork(){if(!v.model)return;const m=v.model.materials.find(m=>m.name==='TOP_ART_REPLACE_THIS_TEXTURE');if(!m)return;const p=m.pbrMetallicRoughness;if(!artTextures.has(m))artTextures.set(m,p.baseColorTexture.texture);const enabled=showArt.checked&&(activeSystem!=='gamecube'||Boolean(systemState.gamecube.art));p.baseColorTexture.setTexture(enabled?artTextures.get(m):null);m.setAlphaMode(enabled&&activeSystem!=='gamecube'?'MASK':'BLEND');p.setBaseColorFactor(enabled?[1,1,1,activeSystem==='gamecube'?.94:1]:[1,1,1,0]);p.setMetallicFactor(0);p.setRoughnessFactor(.36);const badge=v.model.materials.find(m=>m.name==='TOP_PERMANENT_PS2_BRANDING');if(badge){badge.setAlphaMode('BLEND');badge.pbrMetallicRoughness.setBaseColorFactor([1,1,1,enabled&&systemState[activeSystem].branding!==false?1:0])}applyPS1LabelStyle()}
 XBOX_HEADER_SCRIPT
 PS1_LABEL_CONTROLS_SCRIPT
 GAMECUBE_LABEL_SCRIPT
@@ -110,10 +108,9 @@ async function applyArt(){
  }
  if(artTextures.get(m)!==texture){artTextures.set(m,texture);updateArtwork();}
  await applyGCLabel();
- await applyPrintedBand();
 }
 showArt.onchange=()=>{updateArtwork();if(activeSystem==='gamecube')artworkUpdate=applyGCLabel();s.textContent=showArt.checked?'Artwork shown.':'Artwork hidden. Your image is kept for when you turn it back on.'};
-v.addEventListener('load',async()=>{const model=v.model,system=activeSystem;syncArtworkControls();try{await requestArtworkUpdate();await waitForArtwork();if(model===v.model&&system===activeSystem)applyPrintTexture();await v.updateComplete;if(model!==v.model||system!==activeSystem)return;v.style.visibility='visible';s.textContent='Ready. Reflections change as you rotate the disc.'}catch(error){if(model===v.model&&system===activeSystem)v.style.visibility='visible';s.textContent='Could not apply artwork: '+error.message}});v.addEventListener('error',()=>{s.textContent='Viewer could not load. Use the included GLB files in a 3D app.'});
+v.addEventListener('load',async()=>{const model=v.model,system=activeSystem;syncArtworkControls();try{await requestArtworkUpdate();await waitForArtwork();await v.updateComplete;if(model!==v.model||system!==activeSystem)return;v.style.visibility='visible';s.textContent='Ready. Reflections change as you rotate the disc.'}catch(error){if(model===v.model&&system===activeSystem)v.style.visibility='visible';s.textContent='Could not apply artwork: '+error.message}});v.addEventListener('error',()=>{s.textContent='Viewer could not load. Use the included GLB files in a 3D app.'});
 document.querySelectorAll('[data-finish]').forEach(b=>b.onclick=()=>{systemState[activeSystem].finish=b.dataset.finish;markFinish();s.textContent='Loading finish…';v.src='data:model/gltf-binary;base64,'+models[b.dataset.finish]});
 document.getElementById('art').onchange=async e=>{if(!e.target.files[0])return;if(artURL){artworkImageCache.delete(artURL);URL.revokeObjectURL(artURL)}artURL=URL.createObjectURL(e.target.files[0]);systemState[activeSystem].art=artURL;systemState[activeSystem].artRotation=0;systemState[activeSystem].artCoverage=100;syncArtworkControls();try{await requestArtworkUpdate();s.textContent='Artwork replaced. Download edited GLB to keep it.'}catch(err){s.textContent='Could not apply artwork: '+err.message}};
 document.getElementById('export').onclick=async()=>{try{await waitForArtwork();const blob=await v.exportScene();const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='custom-disc.glb';a.click();setTimeout(()=>URL.revokeObjectURL(url),10000)}catch(err){s.textContent='Export failed: '+err.message}};
@@ -126,7 +123,7 @@ print('Updated office-background studio saved as studio.html')
 (root/'READ-ME.txt').write_text('''OPTICAL DISC MODEL PACK
 
 Open studio.html in a browser. First use needs internet for the viewer library.
-Select Blue, Silver, Gold or Black. Drag to inspect the light response. Choose a square image under Top artwork, use Artwork rotation to align it, and turn off Show PlayStation 2 branding if your image already contains that band. Then Download edited GLB to save your customized model. Rotation, branding visibility and the Print texture setting are included in the export. Use Print texture under Printed artwork to switch between satin ink and smooth artwork.
+Select Blue, Silver, Gold or Black. Drag to inspect the light response. Choose a square image under Top artwork, use Artwork rotation to align it, and turn off Show PlayStation 2 branding if your image already contains that band. Then Download edited GLB to save your customized model. Rotation and branding visibility are included in the export.
 
 MODELS
 ps2-blue-disc.glb: cobalt blue underside matching the supplied references.

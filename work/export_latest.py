@@ -5,7 +5,7 @@ models=sorted(p for p in root.glob('*.glb') if not p.stem.endswith('-preview'))
 assert len(models)==10
 textures=['label-art.png','groove-normal.png','hub-branding.png','hub-metal-roughness.png','disc-substrate-marks.png','disc-substrate-roughness.png','top-ps2-branding.png']
 textures += ['ps1-mastering-ring.png','gamecube-mastering-details.png','gamecube-label-panel.png','gamecube-label-foil.png']
-textures += ['ps-modern-outer-microetch.png','printed-ink-normal.png','printed-ink-roughness.png']
+textures += ['ps-modern-outer-microetch.png']
 textures += [p.name for p in root.glob('ps[34]-label-template.png')]
 textures += [p.name for p in root.glob('xbox360-*.png')]
 textures += [p.name for p in root.glob('xbox-original-*.png')]

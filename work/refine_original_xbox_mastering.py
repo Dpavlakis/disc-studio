@@ -11,19 +11,16 @@ ROOT=Path(__file__).resolve().parents[1]
 ALLOWED={'10_Original_Xbox_Back_Mastering_Band','12_Original_Xbox_Mastering_Barcode_Outer_Track','13_Original_Xbox_Mastering_Barcode_Inner_Track','14_Original_Xbox_Mastering_Barcode_Middle_Group'}
 
 def fingerprint(g,b):
- # Surface-only artwork edits are validated separately from optical geometry.
- from printed_ink_finish import surface_reference
  result={}
  for mesh in g['meshes']:
   if mesh['name'] in ALLOWED:continue
   h=hashlib.sha256()
   for p in mesh['primitives']:
-   h.update(json.dumps(surface_reference(g,p['material']),sort_keys=True).encode())
+   h.update(json.dumps(g['materials'][p['material']],sort_keys=True).encode())
    for key,index in sorted({**p['attributes'],**({'INDICES':p['indices']} if 'indices' in p else {})}.items()):
     a=g['accessors'][index];v=g['bufferViews'][a['bufferView']];offset=v.get('byteOffset',0);h.update(key.encode());h.update(b[offset:offset+v['byteLength']]);h.update(json.dumps({k:z for k,z in a.items() if k not in {'bufferView','byteOffset'}},sort_keys=True).encode())
   result[mesh['name']]=h.hexdigest()
  for i,img in enumerate(g.get('images',[])):
-  if i in g.get('extras',{}).get('printedInkFinish',{}).get('images',[]):continue
   if 'bufferView' in img:
    v=g['bufferViews'][img['bufferView']];o=v.get('byteOffset',0);result['IMAGE-'+str(i)]=hashlib.sha256(b[o:o+v['byteLength']]).hexdigest()
  return result

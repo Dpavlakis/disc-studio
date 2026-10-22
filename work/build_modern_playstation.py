@@ -22,10 +22,6 @@ def build(console):
   existing,_=load(target)
   if existing.get('extras',{}).get('modernPlayStationVersion')==(13 if console=='ps3' else 9):return
  source=OUT/'ps2-silver-disc.glb';g,blob=load(source);sourcehash=hashlib.sha256(source.read_bytes()).hexdigest();word=OUT/'branding-source'/(console+'-supplied.svg')
- # Rebuild from the unmodified source material, then reapply the ink pass.
- previous_ink=g.get('extras',{}).pop('printedInkFinish',None)
- if previous_ink:
-  for index,material in previous_ink['originalMaterials'].items():g['materials'][int(index)]=material
  if not word.exists():word.write_bytes(Path('C:/Users/dimit/Downloads/playstation'+console[-1]+'-svgrepo-com.svg').read_bytes())
  def acc(data,kind):
   a=np.asarray(data,dtype='<f4');blob.extend(b'\0'*((-len(blob))%4));vi=len(g['bufferViews']);g['bufferViews'].append({'buffer':0,'byteOffset':len(blob),'byteLength':a.nbytes});blob.extend(a.tobytes());i=len(g['accessors']);g['accessors'].append({'bufferView':vi,'componentType':5126,'type':kind,'count':len(a),'min':a.min(axis=0).tolist(),'max':a.max(axis=0).tolist()});return i
