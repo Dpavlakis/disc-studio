@@ -50,9 +50,15 @@ run("activeSystem='ps2';syncArtworkControls()");assert.equal(intensity.value,'20
 // and clips to the source alpha rather than filling transparent cutouts.
 const tileOps=[];
 document.createElement=()=>({getContext:()=>({set fillStyle(v){tileOps.push(v)},beginPath(){},arc(){},fill(){}})});
-const paintOps=[];const drawing={save(){},restore(){},scale(){},createPattern(){return 'dots'},fillRect(){paintOps.push(this.globalCompositeOperation)}};
+const paintOps=[],scales=[];const drawing={save(){},restore(){},scale(x,y){scales.push([x,y])},createPattern(){return 'dots'},fillRect(){paintOps.push(this.globalCompositeOperation)}};
 context.drawing=drawing;
 run('drawPrintedDots(drawing,4096)');assert.deepEqual(paintOps,['source-atop']);
 assert(tileOps.includes('rgba(0,0,0,0.24)'));assert(tileOps.includes('rgba(255,255,255,0.18)'));
-intensity.value='0';intensity.oninput();run('drawPrintedDots(drawing,4096)');assert.equal(paintOps.length,1);
-console.log('Verified print texture toggle, intensity 0/200%, per-console memory, source-atop dot layer, source art retention, model reloads and untouched optical surfaces.');
+assert.equal(scales.at(-1)[0],4096/(8192/2.5));
+const dotSize=document.getElementById('print-dot-size');
+dotSize.value='400';dotSize.oninput();run('drawPrintedDots(drawing,4096)');
+assert.equal(scales.at(-1)[0],2);assert.equal(intensity.value,'200');
+run("activeSystem='ps4';syncArtworkControls()");assert.equal(dotSize.value,'250');
+run("activeSystem='ps2';syncArtworkControls()");assert.equal(dotSize.value,'400');
+intensity.value='0';intensity.oninput();run('drawPrintedDots(drawing,4096)');assert.equal(paintOps.length,2);
+console.log('Verified print texture toggle, intensity 0/200%, larger 250% default dots, independent size control, per-console memory, source-atop dot layer, source art retention, model reloads and untouched optical surfaces.');

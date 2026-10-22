@@ -4,10 +4,13 @@ const brandingToggle=document.getElementById('show-branding');
 const printTextureToggle=document.getElementById('print-texture');
 const printIntensity=document.getElementById('print-intensity');
 const printIntensityValue=document.getElementById('print-intensity-value');
+const printDotSize=document.getElementById('print-dot-size');
+const printDotSizeValue=document.getElementById('print-dot-size-value');
 const printPatterns=new Map();
 const printedBandStates=new WeakMap();
 const ps2PrintedBandURL='PS2_PRINTED_BAND_URL';
 function printStrength(){return systemState[activeSystem].printTexture===false?0:(systemState[activeSystem].printIntensity??75)/100}
+function dotScale(){return (systemState[activeSystem].printDotSize??250)/100}
 function drawPrintedDots(ctx,size){
  const strength=printStrength();if(!strength||typeof ctx.createPattern!=='function')return;
  let tile=printPatterns.get(strength);
@@ -22,8 +25,9 @@ function drawPrintedDots(ctx,size){
   }
   printPatterns.set(strength,tile);
  }
- ctx.save();ctx.globalCompositeOperation='source-atop';ctx.scale(size/8192,size/8192);
- ctx.fillStyle=ctx.createPattern(tile,'repeat');ctx.fillRect(0,0,8192,8192);ctx.restore();
+ const extent=8192/dotScale();
+ ctx.save();ctx.globalCompositeOperation='source-atop';ctx.scale(size/extent,size/extent);
+ ctx.fillStyle=ctx.createPattern(tile,'repeat');ctx.fillRect(0,0,extent,extent);ctx.restore();
 }
 async function applyPrintedBand(){
  if(activeSystem!=='ps2'||!v.model||typeof v.createCanvasTexture!=='function')return;
@@ -32,11 +36,11 @@ async function applyPrintedBand(){
  const live=liveArtworkTextures.get(outer);
  if(typeof live?.canvas.getContext('2d').createPattern!=='function')return;
  const model=v.model,material=model.materials.find(m=>m.name==='TOP_PERMANENT_PS2_BRANDING');if(!material)return;
- const strength=printStrength();if(printedBandStates.get(material)===strength)return;
+ const settings=printStrength()+':'+dotScale();if(printedBandStates.get(material)===settings)return;
  const base=await cachedArtworkImage(ps2PrintedBandURL);
- if(v.model!==model||activeSystem!=='ps2'||strength!==printStrength())return;
+ if(v.model!==model||activeSystem!=='ps2'||settings!==printStrength()+':'+dotScale())return;
  material.pbrMetallicRoughness.baseColorTexture.setTexture(paintLiveArtwork(material,{base},0));
- printedBandStates.set(material,strength);
+ printedBandStates.set(material,settings);
 }
 const printedSurfaceTextures=new WeakMap();
 function applyPrintTexture(){
@@ -71,6 +75,12 @@ printIntensity.oninput=()=>{
  applyPrintTexture();
  requestLiveArtworkUpdate().catch(error=>{s.textContent='Could not update print texture: '+error.message});
 };
+printDotSize.oninput=()=>{
+ const value=Number(printDotSize.value);if(!Number.isFinite(value))return;
+ systemState[activeSystem].printDotSize=Math.max(50,Math.min(400,value));
+ printDotSizeValue.textContent=systemState[activeSystem].printDotSize+'%';
+ requestLiveArtworkUpdate().catch(error=>{s.textContent='Could not update dot size: '+error.message});
+};
 const coverageSlider=document.getElementById('art-coverage');
 const coverageNumber=document.getElementById('art-coverage-number');
 const artworkImageCache=new Map();
@@ -93,6 +103,9 @@ function syncArtworkControls(){
  printIntensity.value=String(state?.printIntensity??75);
  printIntensityValue.textContent=printIntensity.value+'%';
  printIntensity.disabled=!state||state.printTexture===false;
+ printDotSize.value=String(state?.printDotSize??250);
+ printDotSizeValue.textContent=printDotSize.value+'%';
+ printDotSize.disabled=!state||state.printTexture===false;
  if(activeSystem==='ps1')ps1LabelStyle.value=state.labelStyle||'silver';
  if(activeSystem==='gamecube')syncGCLabelControls();
 }
