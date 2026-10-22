@@ -28,3 +28,5 @@ Printed artwork has a satin ink finish with a subtle parallel microgroove normal
 Install Python dependencies with `python -m pip install -r requirements.txt` before rebuilding. Run `npm test` for the interaction, geometry and material checks. Font rendering uses Windows fonts. No dependency installation is required to open the generated studio.
 
 The viewer's office surroundings and other environments affect lighting, but are not embedded in exported GLBs. Rainbow effects approximate optical-disc diffraction. Reference artwork and supplied branding remain third-party assets. The optional Blender setup is included in `outputs/create-blender-scene.py` and has not been run in Blender here.
+
+The PS1 centre hub and moulded centre rings use 40% optical transmission; the black data area remains opaque.

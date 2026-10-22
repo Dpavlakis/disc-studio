@@ -52,10 +52,10 @@ def refine_ps1(path):
     mats[2] = copy.deepcopy(hub)
     mats[4] = copy.deepcopy(hub)
     mats[4]['name'] = 'PS1_BLACK_MOULDED_RINGS'
-    # A very faint optical transmission, restricted to the moulded centre.
+    # Forty percent optical transmission, restricted to the moulded centre.
     # Keep alpha opaque so reflections and silhouettes remain well defined.
     for index in (2,4):
-        mats[index]['extensions']['KHR_materials_transmission']={'transmissionFactor':.02}
+        mats[index]['extensions']['KHR_materials_transmission']={'transmissionFactor':.4}
     if 'KHR_materials_transmission' not in g['extensionsUsed']:
         g['extensionsUsed'].append('KHR_materials_transmission')
     for index in (3, 7, 8):
@@ -202,6 +202,25 @@ def refine_ps1(path):
     path.write_bytes(struct.pack('<III',0x46546c67,2,28+len(js)+len(blob))+
                      struct.pack('<II',len(js),0x4e4f534a)+js+struct.pack('<II',len(blob),0x004e4942)+blob)
     print('Refined PSX opaque black base, separate face and optional centre print:',path.name)
+
+
+def update_centre_transparency(path):
+    """Update the approved model's centre materials without rebuilding it."""
+    path=Path(path); raw=path.read_bytes(); size=struct.unpack_from('<I',raw,12)[0]
+    g=json.loads(raw[20:20+size]); blob=raw[28+size:]
+    names={'PS1_OPAQUE_BLACK_HUB','PS1_BLACK_MOULDED_RINGS'}
+    changed=False
+    for material in g['materials']:
+        if material['name'] not in names:continue
+        transmission=material['extensions']['KHR_materials_transmission']
+        if transmission['transmissionFactor']!=.4:
+            transmission['transmissionFactor']=.4; changed=True
+    if not changed:return
+    js=json.dumps(g,separators=(',',':')).encode(); js+=b' '*((-len(js))%4)
+    path.write_bytes(struct.pack('<III',0x46546c67,2,28+len(js)+len(blob))+
+                     struct.pack('<II',len(js),0x4e4f534a)+js+
+                     struct.pack('<II',len(blob),0x004e4942)+blob)
+    print('PS1 centre hub and moulded rings: 40% optical transparency; original geometry and textures retained.')
 
 
 if __name__ == '__main__':
