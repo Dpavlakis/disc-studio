@@ -1,8 +1,8 @@
 # Disc Studio
 
-Download and extract **optical-disc-pack.zip** from the [latest release](https://github.com/Dpavlakis/ps2-disc-studio/releases/latest), then open **studio.html**. First use needs internet for the 3D viewer library.
+Run the rebuild command below, then open **Open Studio.html**. First use needs internet for the 3D viewer library.
 
-When using a source checkout, run the rebuild command below first, then open **Open Studio.html**. The generated studio page is distributed in releases because it exceeds GitHub's per-file repository limit.
+The generated studio page exceeds GitHub's per-file repository limit and is excluded from source control. `npm run build` creates it and a ready-to-use `outputs/optical-disc-pack.zip` alongside the model-only export.
 
 The studio includes PlayStation, PlayStation 2, PlayStation 3, PlayStation 4, original Xbox, Xbox 360 and GameCube discs. Upload artwork, adjust its rotation and coverage, choose lighting, and export an edited GLB or transparent PNG. GameCube branding has separate seal, rating, panel colour and four-character game-code controls.
 
