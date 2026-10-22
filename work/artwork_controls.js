@@ -1,6 +1,32 @@
 const angleSlider=document.getElementById('art-angle');
 const angleNumber=document.getElementById('art-angle-number');
 const brandingToggle=document.getElementById('show-branding');
+const printTextureToggle=document.getElementById('print-texture');
+const printedSurfaceTextures=new WeakMap();
+function applyPrintTexture(){
+ if(!v.model)return;
+ const enabled=systemState[activeSystem].printTexture!==false;
+ for(const material of v.model.materials){
+  if(!['TOP_ART_REPLACE_THIS_TEXTURE','TOP_PERMANENT_PS2_BRANDING'].includes(material.name))continue;
+  const p=material.pbrMetallicRoughness;
+  // Retain the embedded maps so off/on never re-uploads or edits artwork.
+  if(!printedSurfaceTextures.has(material))printedSurfaceTextures.set(material,{
+   normal:material.normalTexture?.texture||null,
+   roughness:p.metallicRoughnessTexture?.texture||null,
+   anisotropy:material.anisotropyStrength??.18
+  });
+  const saved=printedSurfaceTextures.get(material);
+  material.normalTexture?.setTexture(enabled?saved.normal:null);
+  p.metallicRoughnessTexture?.setTexture(enabled?saved.roughness:null);
+  p.setRoughnessFactor?.(enabled?.52:material.name==='TOP_PERMANENT_PS2_BRANDING'?.38:.36);
+  material.setAnisotropyStrength?.(enabled?saved.anisotropy:0);
+ }
+}
+printTextureToggle.onchange=()=>{
+ systemState[activeSystem].printTexture=printTextureToggle.checked;
+ applyPrintTexture();
+ s.textContent=printTextureToggle.checked?'Print texture on · Satin ink finish.':'Print texture off · Smooth artwork finish.';
+};
 const coverageSlider=document.getElementById('art-coverage');
 const coverageNumber=document.getElementById('art-coverage-number');
 const artworkImageCache=new Map();
@@ -18,6 +44,8 @@ function syncArtworkControls(){
  for(const id of ['art-coverage','art-coverage-number','art-coverage-reset'])document.getElementById(id).disabled=!hasArt;
  for(const id of ['art-angle','art-angle-number','art-turn-left','art-turn-right','art-angle-reset'])document.getElementById(id).disabled=!hasArt;
  brandingToggle.checked=!state||state.branding!==false;
+ printTextureToggle.checked=!state||state.printTexture!==false;
+ printTextureToggle.disabled=!state;
  if(activeSystem==='ps1')ps1LabelStyle.value=state.labelStyle||'silver';
  if(activeSystem==='gamecube')syncGCLabelControls();
 }
