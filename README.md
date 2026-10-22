@@ -23,7 +23,7 @@ Left-drag orbits the view, middle-drag rotates the disc itself, right-drag pans,
 
 Run `python work/package.py` or `npm run build`. This packages the current models without regenerating their geometry. `python work/export_latest.py` refreshes the model-only ZIP. Older model builders are retained for reference and are not part of the packaging command.
 
-Printed artwork has a satin ink finish with a subtle parallel microgroove normal map and mild anisotropy. The same finish covers the separate PS2 branding band. Use **Printed artwork → Print texture** to turn this finish on or off. The setting is remembered for each console during the session and included in edited GLB exports. Artwork pixels remain unchanged; the surface maps stay embedded in textured GLB exports. At normal viewing distances, mip filtering smooths the microscopic grooves.
+Printed artwork has a satin ink finish with a subtle diagonal halftone dot normal map. The same finish covers the separate PS2 branding band. Use **Printed artwork → Print texture** to turn this finish on or off. The setting is remembered for each console during the session and included in edited GLB exports. Artwork pixels remain unchanged; the surface maps stay embedded in textured GLB exports. At normal viewing distances, mip filtering smooths the microscopic dots.
 
 Install Python dependencies with `python -m pip install -r requirements.txt` before rebuilding. Run `npm test` for the interaction, geometry and material checks. Font rendering uses Windows fonts. No dependency installation is required to open the generated studio.
 

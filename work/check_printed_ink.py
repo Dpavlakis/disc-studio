@@ -7,7 +7,7 @@ from printed_ink_finish import ROOT, load, surface_reference, maps
 count=0
 for path in (ROOT/'outputs').glob('*.glb'):
  g,b=load(path); finish=g['extras']['printedInkFinish']
- assert finish['version']==1
+ assert finish['version']==2
  assert hashlib.sha256(b[:finish['originalBufferBytes']]).hexdigest()==finish['originalBufferSha256']
  for index, original in finish['originalMaterials'].items():
   actual=g['materials'][int(index)];surface_reference(g,int(index))
@@ -24,12 +24,17 @@ for path in (ROOT/'outputs').glob('*.glb'):
   assert sampler=={'magFilter':9729,'minFilter':9987,'wrapS':10497,'wrapT':10497}
  count+=1
 normal=np.asarray(Image.open(io.BytesIO(maps()[0][1])))
-assert np.ptp(normal[:,:,0])==0 and np.ptp(normal[:,:,1])>140
-assert np.abs(normal[:-8].astype(int)-normal[8:].astype(int)).max()<=1
+# Round dot relief must vary in both directions; a scanline normal fails this.
+assert np.ptp(normal[:,:,0])>80 and np.ptp(normal[:,:,1])>80
+assert np.abs(np.diff(normal[:,:,0].astype(float),axis=1)).mean()>2
+assert np.abs(np.diff(normal[:,:,1].astype(float),axis=0)).mean()>2
+rough=np.asarray(Image.open(io.BytesIO(maps()[1][1])))[:,:,1]
+assert np.ptp(rough[0])>2 and np.ptp(rough[:,0])>2
+assert np.array_equal(normal[:-16],normal[16:])
 # A distant mip resolves the alternating slopes to a neutral normal.
 mip=np.asarray(Image.fromarray(normal).resize((4,4),Image.Resampling.BOX))
 assert np.abs(mip[:,:,1].astype(float)-128).max()<=1
 assert .52*235/255>.4 and .52<.6
 runtime=(ROOT/'work/package.py').read_text(encoding='utf-8')
 assert 'p.setRoughnessFactor(.52)' in runtime
-print(f'Printed finish verified on {count} models: unchanged art/geometry bytes, satin response, fine periodic grooves and neutral distant mip.')
+print(f'Printed finish verified on {count} models: unchanged art/geometry bytes, satin response, two-dimensional halftone dots and neutral distant mip.')

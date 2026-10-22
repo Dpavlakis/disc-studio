@@ -13,7 +13,7 @@ function applyPrintTexture(){
   if(!printedSurfaceTextures.has(material))printedSurfaceTextures.set(material,{
    normal:material.normalTexture?.texture||null,
    roughness:p.metallicRoughnessTexture?.texture||null,
-   anisotropy:material.anisotropyStrength??.18
+   anisotropy:material.anisotropyStrength??0
   });
   const saved=printedSurfaceTextures.get(material);
   material.normalTexture?.setTexture(enabled?saved.normal:null);
