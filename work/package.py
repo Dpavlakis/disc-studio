@@ -42,7 +42,7 @@ for key,preset in environment_presets.items():
 environment_controls_js=(root.parent/'work/environment_controls.js').read_text(encoding='utf-8').replace('LIGHTMAPS',json.dumps(lightmaps)).replace('ENVIRONMENT_PRESETS',json.dumps(environment_presets))
 header_cuts={'classic': 372, 'live-classic': 372, 'live-wordmark': 363, 'no-live': 363, 'live-wide': 363, 'live-split': 363, 'kinect': 362, 'green-waves': 374}
 headers={key:{'url':'data:image/png;base64,'+base64.b64encode((root/'xbox360-headers'/f'{key}.png').read_bytes()).decode(),'cut':cut} for key,cut in header_cuts.items()}
-artwork_controls_js=(root.parent/'work/artwork_controls.js').read_text(encoding='utf-8')
+artwork_controls_js=(root.parent/'work/artwork_controls.js').read_text(encoding='utf-8').replace('PS2_PRINTED_BAND_URL','data:image/png;base64,'+base64.b64encode((root/'top-ps2-branding.png').read_bytes()).decode())
 disc_object_rotation_js=(root.parent/'work/disc_object_rotation.js').read_text(encoding='utf-8')
 ps1_label_controls_js=(root.parent/'work/ps1_label_controls.js').read_text(encoding='utf-8')
 gamecube_label_js=(root.parent/'work/gamecube_label_controls.js').read_text(encoding='utf-8').replace('GC_BRANDING_ASSETS',(root/'branding-source/gamecube-label/assets.json').read_text(encoding='utf-8'))
@@ -110,6 +110,7 @@ async function applyArt(){
  }
  if(artTextures.get(m)!==texture){artTextures.set(m,texture);updateArtwork();}
  await applyGCLabel();
+ await applyPrintedBand();
 }
 showArt.onchange=()=>{updateArtwork();if(activeSystem==='gamecube')artworkUpdate=applyGCLabel();s.textContent=showArt.checked?'Artwork shown.':'Artwork hidden. Your image is kept for when you turn it back on.'};
 v.addEventListener('load',async()=>{const model=v.model,system=activeSystem;syncArtworkControls();try{await requestArtworkUpdate();await waitForArtwork();if(model===v.model&&system===activeSystem)applyPrintTexture();await v.updateComplete;if(model!==v.model||system!==activeSystem)return;v.style.visibility='visible';s.textContent='Ready. Reflections change as you rotate the disc.'}catch(error){if(model===v.model&&system===activeSystem)v.style.visibility='visible';s.textContent='Could not apply artwork: '+error.message}});v.addEventListener('error',()=>{s.textContent='Viewer could not load. Use the included GLB files in a 3D app.'});

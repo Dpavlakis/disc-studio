@@ -2,10 +2,46 @@ const angleSlider=document.getElementById('art-angle');
 const angleNumber=document.getElementById('art-angle-number');
 const brandingToggle=document.getElementById('show-branding');
 const printTextureToggle=document.getElementById('print-texture');
+const printIntensity=document.getElementById('print-intensity');
+const printIntensityValue=document.getElementById('print-intensity-value');
+const printPatterns=new Map();
+const printedBandStates=new WeakMap();
+const ps2PrintedBandURL='PS2_PRINTED_BAND_URL';
+function printStrength(){return systemState[activeSystem].printTexture===false?0:(systemState[activeSystem].printIntensity??75)/100}
+function drawPrintedDots(ctx,size){
+ const strength=printStrength();if(!strength||typeof ctx.createPattern!=='function')return;
+ let tile=printPatterns.get(strength);
+ if(!tile){
+  tile=document.createElement('canvas');tile.width=tile.height=32;
+  const ink=tile.getContext('2d');
+  // A diagonal dot screen adds gentle ink-density variation on dark and light art.
+  // source-atop below preserves the uploaded image's transparency exactly.
+  for(const [x,y] of [[8,8],[24,24]]){
+   ink.fillStyle='rgba(0,0,0,'+(.12*strength)+')';ink.beginPath();ink.arc(x,y,5,0,Math.PI*2);ink.fill();
+   ink.fillStyle='rgba(255,255,255,'+(.09*strength)+')';ink.beginPath();ink.arc(x+1,y+1,3.8,0,Math.PI*2);ink.fill();
+  }
+  printPatterns.set(strength,tile);
+ }
+ ctx.save();ctx.globalCompositeOperation='source-atop';ctx.scale(size/8192,size/8192);
+ ctx.fillStyle=ctx.createPattern(tile,'repeat');ctx.fillRect(0,0,8192,8192);ctx.restore();
+}
+async function applyPrintedBand(){
+ if(activeSystem!=='ps2'||!v.model||typeof v.createCanvasTexture!=='function')return;
+ // Older preview implementations still support the material-only finish.
+ const outer=v.model.materials.find(m=>m.name==='TOP_ART_REPLACE_THIS_TEXTURE');
+ const live=liveArtworkTextures.get(outer);
+ if(typeof live?.canvas.getContext('2d').createPattern!=='function')return;
+ const model=v.model,material=model.materials.find(m=>m.name==='TOP_PERMANENT_PS2_BRANDING');if(!material)return;
+ const strength=printStrength();if(printedBandStates.get(material)===strength)return;
+ const base=await cachedArtworkImage(ps2PrintedBandURL);
+ if(v.model!==model||activeSystem!=='ps2'||strength!==printStrength())return;
+ material.pbrMetallicRoughness.baseColorTexture.setTexture(paintLiveArtwork(material,{base},0));
+ printedBandStates.set(material,strength);
+}
 const printedSurfaceTextures=new WeakMap();
 function applyPrintTexture(){
  if(!v.model)return;
- const enabled=systemState[activeSystem].printTexture!==false;
+ const enabled=printStrength()>0;
  for(const material of v.model.materials){
   if(!['TOP_ART_REPLACE_THIS_TEXTURE','TOP_PERMANENT_PS2_BRANDING'].includes(material.name))continue;
   const p=material.pbrMetallicRoughness;
@@ -25,7 +61,15 @@ function applyPrintTexture(){
 printTextureToggle.onchange=()=>{
  systemState[activeSystem].printTexture=printTextureToggle.checked;
  applyPrintTexture();
+ syncArtworkControls();requestLiveArtworkUpdate().catch(error=>{s.textContent='Could not update print texture: '+error.message});
  s.textContent=printTextureToggle.checked?'Print texture on · Satin ink finish.':'Print texture off · Smooth artwork finish.';
+};
+printIntensity.oninput=()=>{
+ const value=Number(printIntensity.value);if(!Number.isFinite(value))return;
+ systemState[activeSystem].printIntensity=Math.max(0,Math.min(200,value));
+ printIntensityValue.textContent=systemState[activeSystem].printIntensity+'%';
+ applyPrintTexture();
+ requestLiveArtworkUpdate().catch(error=>{s.textContent='Could not update print texture: '+error.message});
 };
 const coverageSlider=document.getElementById('art-coverage');
 const coverageNumber=document.getElementById('art-coverage-number');
@@ -46,6 +90,9 @@ function syncArtworkControls(){
  brandingToggle.checked=!state||state.branding!==false;
  printTextureToggle.checked=!state||state.printTexture!==false;
  printTextureToggle.disabled=!state;
+ printIntensity.value=String(state?.printIntensity??75);
+ printIntensityValue.textContent=printIntensity.value+'%';
+ printIntensity.disabled=!state||state.printTexture===false;
  if(activeSystem==='ps1')ps1LabelStyle.value=state.labelStyle||'silver';
  if(activeSystem==='gamecube')syncGCLabelControls();
 }
@@ -90,6 +137,7 @@ function paintLiveArtwork(material,inputs,angle,coverage=100){
  const coveredSize=size*coverage/100;
  ctx.drawImage(inputs.base,-coveredSize/2,-coveredSize/2,coveredSize,coveredSize);ctx.restore();
  if(inputs.headerImage)drawXboxHeader(ctx,inputs.headerImage,inputs.config,size);
+ drawPrintedDots(ctx,size);
  texture.source.update();return texture;
 }
 async function rotateUploadedArtwork(url,angle,coverage=100){

@@ -9,6 +9,7 @@
 <label class="upload-control">Choose artwork <span>PNG / JPG</span><input id="art" type="file" accept="image/*"></label>
 <label class="check-control"><input id="show-art" type="checkbox" checked>Show artwork</label>
 <label class="check-control"><input id="print-texture" type="checkbox" checked>Print texture</label>
+<label class="range-field">Texture intensity <output id="print-intensity-value" for="print-intensity">75%</output><input id="print-intensity" type="range" min="0" max="200" step="5" value="75" aria-label="Print texture intensity"></label>
 <div class="art-angle-control">
 <div class="angle-heading"><label for="art-angle">Artwork rotation</label><div class="angle-number"><label class="sr-only" for="art-angle-number">Artwork angle in degrees</label><input id="art-angle-number" type="number" min="-180" max="180" step="0.1" value="0" disabled><span aria-hidden="true">°</span></div></div>
 <input id="art-angle" type="range" min="-180" max="180" step="0.1" value="0" aria-label="Artwork rotation" disabled>

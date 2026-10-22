@@ -12,6 +12,7 @@ const viewer={model:{materials:[top,badge,optical]}};
 const context=vm.createContext({document,v:viewer,activeSystem:'ps2',systemState:{ps2:{},ps4:{}},s:{}});
 vm.runInContext(fs.readFileSync('work/artwork_controls.js','utf8'),context);
 const run=code=>vm.runInContext(code,context);
+run('requestLiveArtworkUpdate=async()=>{}');
 const toggle=document.getElementById('print-texture');
 const normals=[top.normalTexture.texture,badge.normalTexture.texture];
 const rough=[top.pbrMetallicRoughness.metallicRoughnessTexture.texture,badge.pbrMetallicRoughness.metallicRoughnessTexture.texture];
@@ -38,4 +39,20 @@ run("activeSystem='ps4';syncArtworkControls();applyPrintTexture()");assert(toggl
 const replacement=material('TOP_ART_REPLACE_THIS_TEXTURE');viewer.model={materials:[replacement]};
 run("activeSystem='ps2';syncArtworkControls();applyPrintTexture()");assert(!toggle.checked);assert.equal(replacement.normalTexture.texture,null);
 toggle.checked=true;toggle.onchange();assert.equal(replacement.normalTexture.texture.name,'ink-normal');
-console.log('Verified print texture off/on, exact map restoration, branding, per-console memory, model reloads, unchanged art and untouched optical surfaces.');
+// Intensity remembers a separate value per console and zero removes relief.
+const intensity=document.getElementById('print-intensity');
+intensity.value='0';intensity.oninput();assert.equal(replacement.normalTexture.texture,null);
+assert.equal(document.getElementById('print-intensity-value').textContent,'0%');
+intensity.value='200';intensity.oninput();assert.equal(replacement.normalTexture.texture.name,'ink-normal');
+run("activeSystem='ps4';syncArtworkControls()");assert.equal(intensity.value,'75');
+run("activeSystem='ps2';syncArtworkControls()");assert.equal(intensity.value,'200');
+// The visible ink layer uses dots, changes contrast on both light/dark ink,
+// and clips to the source alpha rather than filling transparent cutouts.
+const tileOps=[];
+document.createElement=()=>({getContext:()=>({set fillStyle(v){tileOps.push(v)},beginPath(){},arc(){},fill(){}})});
+const paintOps=[];const drawing={save(){},restore(){},scale(){},createPattern(){return 'dots'},fillRect(){paintOps.push(this.globalCompositeOperation)}};
+context.drawing=drawing;
+run('drawPrintedDots(drawing,4096)');assert.deepEqual(paintOps,['source-atop']);
+assert(tileOps.includes('rgba(0,0,0,0.24)'));assert(tileOps.includes('rgba(255,255,255,0.18)'));
+intensity.value='0';intensity.oninput();run('drawPrintedDots(drawing,4096)');assert.equal(paintOps.length,1);
+console.log('Verified print texture toggle, intensity 0/200%, per-console memory, source-atop dot layer, source art retention, model reloads and untouched optical surfaces.');
