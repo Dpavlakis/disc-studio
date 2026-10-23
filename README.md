@@ -29,3 +29,5 @@ Install Python dependencies with `python -m pip install -r requirements.txt` bef
 The viewer's office surroundings and other environments affect lighting, but are not embedded in exported GLBs. Rainbow effects approximate optical-disc diffraction. Reference artwork and supplied branding remain third-party assets. The optional Blender setup is included in `outputs/create-blender-scene.py` and has not been run in Blender here.
 
 The PS1 centre hub and moulded centre rings use 40% optical transmission; the black data area remains opaque.
+
+The studio starts with the approved platform-specific placeholder covers for all seven systems. Uploading your own image replaces the placeholder. Placeholder changes do not modify the disc model files.

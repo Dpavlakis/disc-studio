@@ -18,6 +18,7 @@ with zipfile.ZipFile(root/'latest-disc-models.zip','w',zipfile.ZIP_DEFLATED) as 
   model=json.loads(data[20:20+n]);assert len(model['meshes'])==(13 if p.name=='gamecube-disc.glb' else 22 if p.name=='xbox360-test.glb' else (20 if p.name.startswith('xbox') else (18 if p.name.startswith(('ps2-','ps3-','ps4-')) else 17)))
   archive.writestr(p.name,data)
  for name in textures:archive.write(root/name,'textures/'+name)
+ for p in (root/'default-labels').glob('*.png'):archive.write(p,'default-labels/'+p.name)
  for p in (root/'xbox360-headers').glob('*.png'):archive.write(p,'xbox360-headers/'+p.name)
  for p in (root/'branding-source').iterdir():
   if p.is_file() and p.suffix in ('.svg','.ttf'):archive.write(p,'branding-source/'+p.name)

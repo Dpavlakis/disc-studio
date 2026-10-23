@@ -89,7 +89,7 @@ const watchdog=setTimeout(()=>{console.error('Live artwork checks did not finish
  // and retains independent artwork transforms across console switches.
  let gcAlpha,gcColor;top.setAlphaMode=v=>gcAlpha=v;top.pbrMetallicRoughness.setBaseColorFactor=v=>gcColor=v;
  const gcPanel=labelMaterial('GAMECUBE_LABEL_PANEL'),gcFoil=labelMaterial('GAMECUBE_LABEL_FOIL');viewer.model.materials.push(gcPanel,gcFoil);
- run("chooseSystem('gamecube')");await run('requestArtworkUpdate()');assert.equal(gcColor[3],0);
+ run("chooseSystem('gamecube')");await run('requestArtworkUpdate()');assert.equal(gcColor[3],.94);
  await elements.get('art').onchange({target:{files:[{}]}});assert.equal(gcAlpha,'BLEND');assert.equal(gcColor[3],.94);
  const gcCoverage=run('setArtworkCoverage(103)');flush();await gcCoverage;await turn(24);
  run("chooseSystem('ps2');chooseSystem('gamecube')");assert.equal(run('systemState.gamecube.artCoverage'),103);assert.equal(run('systemState.gamecube.artRotation'),24);
