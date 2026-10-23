@@ -31,3 +31,5 @@ The viewer's office surroundings and other environments affect lighting, but are
 The PS1 centre hub and moulded centre rings use 40% optical transmission; the black data area remains opaque.
 
 The studio starts with the approved platform-specific placeholder covers for all seven systems. Uploading your own image replaces the placeholder. The approved covers are also embedded in the models so the old placeholders cannot flash during loading. Cover replacement preserves the disc geometry and optical finish.
+
+Original Xbox has an additional **Disc-matched security** finish: the X and Xbox centre branding, barcode marks and serial lettering use the same reflective data material as the disc. The original Xbox model remains a separate option.

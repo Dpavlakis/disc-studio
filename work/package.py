@@ -34,6 +34,8 @@ from refine_ps1 import update_centre_transparency
 update_centre_transparency(root/'ps1-black-disc.glb')
 from embed_default_labels import update as embed_approved_cover
 for current_model in root.glob('*.glb'):embed_approved_cover(current_model)
+from build_xbox_disc_matched import build as build_disc_matched_xbox
+build_disc_matched_xbox()
 models={p.stem:base64.b64encode(p.read_bytes()).decode() for p in root.glob('*.glb') if not p.stem.endswith('-preview')}
 lightmaps={str(i):'data:application/octet-stream;base64,'+base64.b64encode((root/'lighting'/f'{i}-softbox.hdr').read_bytes()).decode() for i in range(1,5)}
 environment_presets=json.loads((root/'lighting/environments.json').read_text(encoding='utf-8'))

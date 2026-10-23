@@ -4,7 +4,7 @@ import hashlib,json,re,base64,struct
 from PIL import Image
 ROOT=Path(__file__).resolve().parents[1]
 expected=json.loads((ROOT/'work/default-label-model-hashes.json').read_text())
-assert expected=={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in (ROOT/'outputs').glob('*.glb')}
+assert expected=={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in (ROOT/'outputs').glob('*.glb') if p.name in expected}
 html=(ROOT/'outputs/studio.html').read_text(encoding='utf-8')
 for system,asset in {'ps1':'ps1','ps2':'ps2','ps3':'ps3','ps4':'ps4','xbox':'xbox','xbox360':'x360','gamecube':'gc','ps2Branding':'ps2-branding'}.items():
  path=ROOT/'outputs/default-labels'/(asset+'.png')
