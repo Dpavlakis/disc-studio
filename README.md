@@ -30,4 +30,4 @@ The viewer's office surroundings and other environments affect lighting, but are
 
 The PS1 centre hub and moulded centre rings use 40% optical transmission; the black data area remains opaque.
 
-The studio starts with the approved platform-specific placeholder covers for all seven systems. Uploading your own image replaces the placeholder. Placeholder changes do not modify the disc model files.
+The studio starts with the approved platform-specific placeholder covers for all seven systems. Uploading your own image replaces the placeholder. The approved covers are also embedded in the models so the old placeholders cannot flash during loading. Cover replacement preserves the disc geometry and optical finish.

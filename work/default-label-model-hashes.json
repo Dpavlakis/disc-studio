@@ -1,12 +1,12 @@
 {
-  "gamecube-disc.glb": "ac6e1c4e073e04e2774353d980dc68a74e5882f64d2f92987c9353af98e40168",
-  "ps1-black-disc.glb": "15d37e3a97d36fc26c791c0a862b9f28ca1cb7bab1cdb3478baa0f79222af2aa",
-  "ps2-blue-disc.glb": "1d3472fb6015a823bd444a38ad2093c4921cd12fff1536e4d8f53b31fa99628a",
-  "ps2-gold-disc.glb": "4355549d1a8bf32f5cbbaa64557d4d2a6ca35e703713d8bf08c15725c50fbaf0",
-  "ps2-silver-disc.glb": "c725f47e8f2daf7a9ef63a52ea8e8260311dbf1603a40feff368722f9eba5c3c",
-  "ps3-silver-disc.glb": "82673848ff1ccdee69538b6805160efc7e2b70ebdd8881163fc7a54b78afe8b9",
-  "ps4-silver-disc.glb": "0760a87d8c62e42b8f58324cfe4be97957ccdfc7b835fa68f3a233033d5641a8",
-  "xbox-original-disc.glb": "e725dafcf0be086bb1c5dd26bf7d761cebb40480fcdfc1923e12b9ec58308b47",
-  "xbox360-silver-disc.glb": "a6ea139e5ffc80a1abb6f500e10070cb8ffac7004e94a8bfc0758a04ed1813f1",
-  "xbox360-test.glb": "984415eca8a3621d0a8f9fa93fec272ce689b70251ed7776e39632b217b4cdbd"
+  "gamecube-disc.glb": "ec406c2d76ec3ddf3d117fc7b27c3e564d1a8e9b11793ad2dd7ce4a146b5a753",
+  "ps1-black-disc.glb": "738da26cd12e4db5e0d48cd03432021b7b83e89cb5aea66b77fa73b0eca9e9e3",
+  "ps2-blue-disc.glb": "6a49923598d60e7219c27a78ff4bf483eafa08012bc6cfc1ac66ff36fd4637eb",
+  "ps2-gold-disc.glb": "ec125c114a4b62683e5ed795f53a5b72b040927cb35594246a07de3a60c07847",
+  "ps2-silver-disc.glb": "c5b6417b4eb487083b41158eecff2a3b39f274cf3c3590acc1810254a08ec084",
+  "ps3-silver-disc.glb": "a693baae7d5f4a387e6aa4c9c1657555a129f35d6ebef6f4fbbcd68097f0c5c3",
+  "ps4-silver-disc.glb": "9ddc1f946c08b2481088a659aee9dc3a32f9ce54771532f24f4aeb0278a7c015",
+  "xbox-original-disc.glb": "bc8f37faff47e11017515ac530cb3fc178d46f181c2d2b383e32635faf3c0513",
+  "xbox360-silver-disc.glb": "d0d5519e2d609b0c7200c7ae6185f5296ddb695f4ab7dc65ee7d0670fe853772",
+  "xbox360-test.glb": "a68b226ae49399ecc655143834a4b837002c6c0f07468e328209597894adcbf5"
 }

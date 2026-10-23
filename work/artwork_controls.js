@@ -108,20 +108,3 @@ brandingToggle.onchange=()=>{
  systemState[activeSystem].branding=brandingToggle.checked;updateArtwork();
  s.textContent=brandingToggle.checked?'PlayStation 2 branding shown.':'PlayStation 2 branding hidden. Your artwork fills the label.';
 };
-
-// Placeholder artwork uses the approved footer; personal artwork keeps the
-// existing independent PS2 branding controls and its original band.
-const defaultPS2Bands=new WeakMap();
-async function applyDefaultPS2Branding(){
- if(activeSystem!=='ps2'||!v.model)return;
- const model=v.model;
- const badge=model.materials.find(m=>m.name==='TOP_PERMANENT_PS2_BRANDING');
- const slot=badge?.pbrMetallicRoughness.baseColorTexture;
- if(!slot?.setTexture)return;
- if(!defaultPS2Bands.has(badge))defaultPS2Bands.set(badge,{original:slot.texture});
- const saved=defaultPS2Bands.get(badge);
- if(systemState.ps2.art){slot.setTexture(saved.original);return}
- if(!saved.placeholder)saved.placeholder=v.createTexture(defaultLabels.ps2Branding);
- const texture=await saved.placeholder;
- if(v.model===model&&activeSystem==='ps2'&&!systemState.ps2.art)slot.setTexture(texture);
-}

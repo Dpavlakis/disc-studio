@@ -32,6 +32,8 @@ from add_modern_playstation_microetch import update as add_ps_microetch
 for key in ['ps3','ps4']:add_ps_microetch(root/(key+'-silver-disc.glb'))
 from refine_ps1 import update_centre_transparency
 update_centre_transparency(root/'ps1-black-disc.glb')
+from embed_default_labels import update as embed_approved_cover
+for current_model in root.glob('*.glb'):embed_approved_cover(current_model)
 models={p.stem:base64.b64encode(p.read_bytes()).decode() for p in root.glob('*.glb') if not p.stem.endswith('-preview')}
 lightmaps={str(i):'data:application/octet-stream;base64,'+base64.b64encode((root/'lighting'/f'{i}-softbox.hdr').read_bytes()).decode() for i in range(1,5)}
 environment_presets=json.loads((root/'lighting/environments.json').read_text(encoding='utf-8'))
@@ -40,8 +42,6 @@ for key,preset in environment_presets.items():
 environment_controls_js=(root.parent/'work/environment_controls.js').read_text(encoding='utf-8').replace('LIGHTMAPS',json.dumps(lightmaps)).replace('ENVIRONMENT_PRESETS',json.dumps(environment_presets))
 header_cuts={'classic': 372, 'live-classic': 372, 'live-wordmark': 363, 'no-live': 363, 'live-wide': 363, 'live-split': 363, 'kinect': 362, 'green-waves': 374}
 headers={key:{'url':'data:image/png;base64,'+base64.b64encode((root/'xbox360-headers'/f'{key}.png').read_bytes()).decode(),'cut':cut} for key,cut in header_cuts.items()}
-default_labels={key:'data:image/png;base64,'+base64.b64encode((root/'default-labels'/(name+'.png')).read_bytes()).decode() for key,name in {'ps1':'ps1','ps2':'ps2','ps3':'ps3','ps4':'ps4','xbox':'xbox','xbox360':'x360','gamecube':'gc'}.items()}
-default_labels['ps2Branding']='data:image/png;base64,'+base64.b64encode((root/'default-labels/ps2-branding.png').read_bytes()).decode()
 artwork_controls_js=(root.parent/'work/artwork_controls.js').read_text(encoding='utf-8')
 disc_object_rotation_js=(root.parent/'work/disc_object_rotation.js').read_text(encoding='utf-8')
 ps1_label_controls_js=(root.parent/'work/ps1_label_controls.js').read_text(encoding='utf-8')
@@ -60,7 +60,7 @@ html='''<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewpor
 <style>html{height:100%}body{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}header{box-sizing:border-box;max-width:none;width:100%;padding:12px 18px}h1{font-size:20px;margin:0 0 5px}header p{font-size:13px;margin:5px 0 9px}nav{gap:7px}button,label{font-size:13px;padding:7px 10px}label{display:inline-flex;align-items:center;gap:7px}input[type=range]{width:110px}select{background:#252b38;color:#eee;border:1px solid #68748b;border-radius:4px;padding:4px}output{min-width:34px}#status{margin:7px 0 0;min-height:18px}.disc-viewport{position:relative;width:100%;flex:1;min-height:520px;overflow:hidden}.disc-viewport model-viewer{position:absolute;left:0;top:0;width:200%;height:200%;min-height:0;transform:scale(.5);transform-origin:top left}.disc-viewport:fullscreen{width:100vw;height:100vh;background:#171a22}@media(max-width:600px){header{padding:10px}.disc-viewport{min-height:65vh}input[type=range]{width:90px}}</style>
 <div class="disc-viewport"><model-viewer id="disc" camera-controls camera-orbit="180deg 90deg 0.23m" camera-target="0m 0m 0m" min-camera-orbit="auto auto 0.065m" max-camera-orbit="auto auto 1m" min-field-of-view="2deg" max-field-of-view="60deg" field-of-view="35deg" environment-image="neutral" exposure="1.1" shadow-intensity="0" interaction-prompt="none" alt="Reflective optical disc with replaceable top artwork"></model-viewer></div>
 <script>const models=MODELS; const v=document.getElementById('disc'); const s=document.getElementById('status');let artURL;
-const defaultLabels=DEFAULT_LABELS;let activeSystem='gamecube';const systemState={ps3:{finish:'ps3-silver-disc',art:null,artRotation:0,branding:true},ps4:{finish:'ps4-silver-disc',art:null,artRotation:0,branding:true},gamecube:{finish:'gamecube-disc',art:null,artRotation:0,branding:true},ps1:{finish:'ps1-black-disc',art:null,artRotation:0,branding:true,labelStyle:'silver'},ps2:{finish:'ps2-blue-disc',art:null,artRotation:0,branding:true},xbox360:{finish:'xbox360-test',art:null,artRotation:0,branding:true},xbox:{finish:'xbox-original-disc',art:null,artRotation:0,branding:true}};
+let activeSystem='gamecube';const systemState={ps3:{finish:'ps3-silver-disc',art:null,artRotation:0,branding:true},ps4:{finish:'ps4-silver-disc',art:null,artRotation:0,branding:true},gamecube:{finish:'gamecube-disc',art:null,artRotation:0,branding:true},ps1:{finish:'ps1-black-disc',art:null,artRotation:0,branding:true,labelStyle:'silver'},ps2:{finish:'ps2-blue-disc',art:null,artRotation:0,branding:true},xbox360:{finish:'xbox360-test',art:null,artRotation:0,branding:true},xbox:{finish:'xbox-original-disc',art:null,artRotation:0,branding:true}};
 const emptySystem=document.createElement('div');emptySystem.className='empty-system';emptySystem.hidden=true;emptySystem.innerHTML='<h2>Xbox 360</h2><p>Next in the collection.</p><p>The Xbox 360 disc model has not been added yet.</p>';document.querySelector('.disc-viewport').append(emptySystem);
 const systemStyle=document.createElement('style');systemStyle.textContent='[hidden]{display:none!important}.system-nav{margin:10px 0}.system-nav button{min-width:70px}.system-nav button[aria-pressed=true]{background:#e7eaf1;color:#15171d;border-color:#e7eaf1}.empty-system{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px}.empty-system h2{font-size:32px;margin:0 0 10px}.empty-system p{margin:5px}';document.head.append(systemStyle);
 function markFinish(){document.querySelectorAll('[data-finish]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.finish===systemState[activeSystem].finish)))}
@@ -96,7 +96,7 @@ async function applyArt(){
  const m=model.materials.find(m=>m.name==='TOP_ART_REPLACE_THIS_TEXTURE');if(!m)return;
  if(!originalArtTextures.has(m))originalArtTextures.set(m,m.pbrMetallicRoughness.baseColorTexture.texture);
  const system=activeSystem;const state=systemState[system];const angle=state.artRotation||0;const header=state.header;
- let url=artURL||defaultLabels[system];let texture;
+ let url=artURL;let texture;
  const fixedHeader=system==='xbox360'&&header!=='none'?header:null;
  if((url||fixedHeader)&&typeof v.createCanvasTexture==='function'){
   const inputs=await readLiveArtwork(url,fixedHeader);
@@ -110,7 +110,6 @@ async function applyArt(){
  }
  if(artTextures.get(m)!==texture)artTextures.set(m,texture);updateArtwork();
  await applyGCLabel();
- await applyDefaultPS2Branding();
 }
 showArt.onchange=()=>{updateArtwork();if(activeSystem==='gamecube')artworkUpdate=applyGCLabel();s.textContent=showArt.checked?'Artwork shown.':'Artwork hidden. Your image is kept for when you turn it back on.'};
 v.addEventListener('load',async()=>{const model=v.model,system=activeSystem;syncArtworkControls();try{await requestArtworkUpdate();await waitForArtwork();await v.updateComplete;if(model!==v.model||system!==activeSystem)return;v.style.visibility='visible';s.textContent='Ready. Reflections change as you rotate the disc.'}catch(error){if(model===v.model&&system===activeSystem)v.style.visibility='visible';s.textContent='Could not apply artwork: '+error.message}});v.addEventListener('error',()=>{s.textContent='Viewer could not load. Use the included GLB files in a 3D app.'});
@@ -121,7 +120,7 @@ chooseSystem('gamecube');</script></html>'''
 html=re.sub(r'<header>.*?</header>',(root.parent/'work/studio_header.html').read_text(encoding='utf-8'),html,count=1,flags=re.S)
 html=html.replace('<div class="disc-viewport">','<div class="disc-viewport"><div class="stage-help">Drag to rotate<span>·</span>Scroll to zoom<span>·</span>Middle-drag: disc rotation<span>·</span>Right-drag: pan</div>')
 html=html.replace('<script>const models=','<style>'+(root.parent/'work/studio.css').read_text(encoding='utf-8')+'</style><script>const models=')
-(root/'studio.html').write_text(html.replace('MODELS',json.dumps(models)).replace('DEFAULT_LABELS',json.dumps(default_labels)).replace('ENVIRONMENT_CONTROLS_SCRIPT',environment_controls_js).replace('DISC_OBJECT_ROTATION_SCRIPT',disc_object_rotation_js).replace('XBOX_HEADER_SCRIPT',header_js).replace('PS1_LABEL_CONTROLS_SCRIPT',ps1_label_controls_js).replace('GAMECUBE_LABEL_SCRIPT',gamecube_label_js).replace('ARTWORK_CONTROLS_SCRIPT',artwork_controls_js),encoding='utf-8')
+(root/'studio.html').write_text(html.replace('MODELS',json.dumps(models)).replace('ENVIRONMENT_CONTROLS_SCRIPT',environment_controls_js).replace('DISC_OBJECT_ROTATION_SCRIPT',disc_object_rotation_js).replace('XBOX_HEADER_SCRIPT',header_js).replace('PS1_LABEL_CONTROLS_SCRIPT',ps1_label_controls_js).replace('GAMECUBE_LABEL_SCRIPT',gamecube_label_js).replace('ARTWORK_CONTROLS_SCRIPT',artwork_controls_js),encoding='utf-8')
 print('Updated office-background studio saved as studio.html')
 (root/'READ-ME.txt').write_text('''OPTICAL DISC MODEL PACK
 
