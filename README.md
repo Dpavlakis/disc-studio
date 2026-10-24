@@ -32,4 +32,4 @@ The PS1 centre hub and moulded centre rings use 40% optical transmission; the bl
 
 The studio starts with the approved platform-specific placeholder covers for all seven systems. Uploading your own image replaces the placeholder. The approved covers are also embedded in the models so the old placeholders cannot flash during loading. Cover replacement preserves the disc geometry and optical finish.
 
-Original Xbox has an additional **Disc-matched security** finish: only the X, Xbox and genuine lettering in the centre branding ring use the same reflective data material as the disc. The geometric background lines and checkerboard squares use a separate very pale silver finish. Outer barcode marks and serial lettering keep their original finish. The original Xbox model remains a separate option.
+Original Xbox has an additional **Disc-matched security** finish: the X, Xbox and genuine lettering, outer security dashes and serial text use the same reflective data material as the disc. The geometric background lines and checkerboard squares use a separate lighter silver finish. The original Xbox model remains a separate option.

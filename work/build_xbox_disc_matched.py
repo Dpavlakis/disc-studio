@@ -11,7 +11,7 @@ def build():
  sha=hashlib.sha256(source.read_bytes()).hexdigest()
  if target.exists():
   old,_=load(target)
-  if old.get('extras',{}).get('discMatchedXboxSourceSha256')==sha and old['extras'].get('discMatchedXboxVersion')==4:return
+  if old.get('extras',{}).get('discMatchedXboxSourceSha256')==sha and old['extras'].get('discMatchedXboxVersion')==5:return
  g,raw=load(source);blob=bytearray(raw);data=copy.deepcopy(g['materials'][1])
  def attr(primitive,key):
   a=g['accessors'][primitive['attributes'][key]];v=g['bufferViews'][a['bufferView']]
@@ -56,17 +56,22 @@ def build():
   ii=len(g['images']);g['images'].append({'bufferView':vi,'mimeType':'image/png','name':'xbox-pale-pattern-'+side+'.png'});pattern_masks.append(ii)
   ti=len(g['textures']);g['textures'].append({'source':ii,'sampler':g['textures'][0].get('sampler',0)})
   pale=copy.deepcopy(g['materials'][6]);pale['name']='XBOX_PALE_'+side.upper()+'_PATTERN_AND_SQUARES';pale['alphaMode']='MASK';pale['alphaCutoff']=.5;pale['doubleSided']=True
-  pale['pbrMetallicRoughness'].update({'baseColorFactor':[.90,.90,.89,1],'roughnessFactor':.20,'baseColorTexture':{'index':ti}})
+  pale['pbrMetallicRoughness'].update({'baseColorFactor':[.97,.97,.96,1],'roughnessFactor':.24,'baseColorTexture':{'index':ti}})
   pale['extensions']['KHR_materials_iridescence']['iridescenceFactor']=.03
   mi=len(g['materials']);g['materials'].append(pale)
   pale_overlay=copy.deepcopy(base);pale_overlay['material']=mi
   pale_overlay['attributes']['POSITION']=accessor(attr(base,'POSITION')+normals*.00002,'VEC3')
   g['meshes'][mesh_index]['primitives'].append(pale_overlay)
 
- # All outer mastering marks retain their original material.
- g.setdefault('extras',{}).update({'discMatchedXboxSourceSha256':sha,'discMatchedXboxVersion':4,'discMatchedXboxMaskImages':masks,'discMatchedXboxPatternImages':pattern_masks,'discMatchedXboxMasteringMeshes':[]})
+ # Native dashes and serial outlines use the full-disc UV convention.
+ mastering=[]
+ for mesh in g['meshes']:
+  for primitive in mesh['primitives']:
+   if primitive['material'] in [16,17]:
+    primitive['material']=1;mastering.append(mesh['name'])
+ g.setdefault('extras',{}).update({'discMatchedXboxSourceSha256':sha,'discMatchedXboxVersion':5,'discMatchedXboxMaskImages':masks,'discMatchedXboxPatternImages':pattern_masks,'discMatchedXboxMasteringMeshes':sorted(set(mastering))})
  assert bytes(blob[:len(raw)])==raw
  g['buffers'][0]['byteLength']=len(blob);j=json.dumps(g,separators=(',',':')).encode();j+=b' '*((-len(j))%4);blob.extend(b'\0'*((-len(blob))%4))
  target.write_bytes(struct.pack('<III',0x46546c67,2,28+len(j)+len(blob))+struct.pack('<II',len(j),0x4e4f534a)+j+struct.pack('<II',len(blob),0x004e4942)+blob)
- print('Extra Xbox variant built: disc-matched X/Xbox lettering ring only; pale silver geometric pattern and checker squares restored; outer mastering preserved.')
+ print('Extra Xbox variant built: disc-matched branding, security dashes and serial text; lighter silver geometric pattern and checker squares.')
 if __name__=='__main__':build()
