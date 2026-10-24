@@ -12,7 +12,7 @@ def build():
  sha=hashlib.sha256(source.read_bytes()).hexdigest()
  if target.exists():
   old,_=load(target)
-  if old.get('extras',{}).get('discMatchedXbox360SourceSha256')==sha and old['extras'].get('discMatchedXbox360Version')==1:return
+  if old.get('extras',{}).get('discMatchedXbox360SourceSha256')==sha and old['extras'].get('discMatchedXbox360Version')==2:return
  g,raw=load(source);blob=bytearray(raw);data=copy.deepcopy(g['materials'][1])
  def attr(primitive,key):
   a=g['accessors'][primitive['attributes'][key]];v=g['bufferViews'][a['bufferView']]
@@ -77,9 +77,9 @@ def build():
   blob.extend(b'\0'*((-len(blob))%4));vi=len(g['bufferViews']);g['bufferViews'].append({'buffer':0,'byteOffset':len(blob),'byteLength':len(png)});blob.extend(png)
   ii=len(g['images']);g['images'].append({'bufferView':vi,'mimeType':'image/png','name':'xbox360-pale-pattern-'+side+'.png'});pattern_masks.append(ii)
   ti=len(g['textures']);g['textures'].append({'source':ii,'sampler':g['textures'][0].get('sampler',0)})
-  pale=copy.deepcopy(g['materials'][6]);pale['name']='XBOX360_PALE_'+side.upper()+'_SWIRL_PATTERN';pale['alphaMode']='MASK';pale['alphaCutoff']=.5;pale['doubleSided']=True
-  pale['pbrMetallicRoughness'].update({'baseColorFactor':[.97,.97,.96,1],'roughnessFactor':.24,'baseColorTexture':{'index':ti}})
-  pale['extensions']['KHR_materials_iridescence']['iridescenceFactor']=.03
+  pale=copy.deepcopy(g['materials'][6]);pale['name']='XBOX360_PALE_'+side.upper()+'_SWIRL_PATTERN';pale['alphaMode']='BLEND';pale['doubleSided']=True
+  pale['pbrMetallicRoughness'].update({'baseColorFactor':[.86,.86,.85,.10],'roughnessFactor':.12,'baseColorTexture':{'index':ti}})
+  pale['extensions']['KHR_materials_iridescence']['iridescenceFactor']=.10
   mi=len(g['materials']);g['materials'].append(pale)
   pale_overlay=copy.deepcopy(base);pale_overlay['material']=mi
   pale_overlay['attributes']['POSITION']=accessor(attr(base,'POSITION')+normals*.00002,'VEC3')
@@ -91,7 +91,7 @@ def build():
   for primitive in mesh['primitives']:
    if primitive['material'] in [16,17]:
     primitive['material']=1;mastering.append(mesh['name'])
- g.setdefault('extras',{}).update({'discMatchedXbox360SourceSha256':sha,'discMatchedXbox360Version':1,'discMatchedXbox360MaskImages':masks,'discMatchedXbox360PatternImages':pattern_masks,'discMatchedXbox360MasteringMeshes':sorted(set(mastering))})
+ g.setdefault('extras',{}).update({'discMatchedXbox360SourceSha256':sha,'discMatchedXbox360Version':2,'discMatchedXbox360MaskImages':masks,'discMatchedXbox360PatternImages':pattern_masks,'discMatchedXbox360MasteringMeshes':sorted(set(mastering))})
  assert bytes(blob[:len(raw)])==raw
  g['buffers'][0]['byteLength']=len(blob);j=json.dumps(g,separators=(',',':')).encode();j+=b' '*((-len(j))%4);blob.extend(b'\0'*((-len(blob))%4))
  target.write_bytes(struct.pack('<III',0x46546c67,2,28+len(j)+len(blob))+struct.pack('<II',len(j),0x4e4f534a)+j+struct.pack('<II',len(blob),0x004e4942)+blob)
