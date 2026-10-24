@@ -2,7 +2,7 @@
 from pathlib import Path
 import json,struct,copy,hashlib
 ROOT=Path(__file__).resolve().parents[1]
-SYSTEMS={'ps1-black-disc':'ps1','ps2-blue-disc':'ps2','ps2-silver-disc':'ps2','ps2-gold-disc':'ps2','ps3-silver-disc':'ps3','ps4-silver-disc':'ps4','xbox-original-disc':'xbox','xbox-original-disc-matched':'xbox','xbox360-silver-disc':'x360','xbox360-test':'x360','gamecube-disc':'gc'}
+SYSTEMS={'ps1-black-disc':'ps1','ps2-blue-disc':'ps2','ps2-silver-disc':'ps2','ps2-gold-disc':'ps2','ps3-silver-disc':'ps3','ps4-silver-disc':'ps4','xbox-original-disc':'xbox','xbox-original-disc-matched':'xbox','xbox360-silver-disc':'x360','xbox360-test':'x360','xbox360-disc-matched':'x360','gamecube-disc':'gc'}
 
 def load(path):
  raw=path.read_bytes();n=struct.unpack_from('<I',raw,12)[0]

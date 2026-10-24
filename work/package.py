@@ -36,6 +36,8 @@ from embed_default_labels import update as embed_approved_cover
 for current_model in root.glob('*.glb'):embed_approved_cover(current_model)
 from build_xbox_disc_matched import build as build_disc_matched_xbox
 build_disc_matched_xbox()
+from build_xbox360_disc_matched import build as build_disc_matched_360
+build_disc_matched_360()
 models={p.stem:base64.b64encode(p.read_bytes()).decode() for p in root.glob('*.glb') if not p.stem.endswith('-preview')}
 lightmaps={str(i):'data:application/octet-stream;base64,'+base64.b64encode((root/'lighting'/f'{i}-softbox.hdr').read_bytes()).decode() for i in range(1,5)}
 environment_presets=json.loads((root/'lighting/environments.json').read_text(encoding='utf-8'))
@@ -156,7 +158,7 @@ In Blender 4.x or later, open the Scripting workspace, load create-blender-scene
 for p in root.glob('*.glb'):
  if p.stem.endswith('-preview'):continue
  b=p.read_bytes(); magic,ver,total=struct.unpack_from('<III',b); assert magic==0x46546c67 and total==len(b)
- size=struct.unpack_from('<I',b,12)[0]; g=json.loads(b[20:20+size]); assert len(g['meshes'])==(13 if p.name=='gamecube-disc.glb' else 22 if p.name=='xbox360-test.glb' else (20 if p.name.startswith('xbox') else (18 if p.name.startswith(('ps2-','ps3-','ps4-')) else 17)))
+ size=struct.unpack_from('<I',b,12)[0]; g=json.loads(b[20:20+size]); assert len(g['meshes'])==(13 if p.name=='gamecube-disc.glb' else 22 if p.name in {'xbox360-test.glb','xbox360-disc-matched.glb'} else (20 if p.name.startswith('xbox') else (18 if p.name.startswith(('ps2-','ps3-','ps4-')) else 17)))
  for mesh in g['meshes']:
   attrs=mesh['primitives'][0]['attributes']; assert all(g['accessors'][a]['count']==g['accessors'][attrs['POSITION']]['count'] for a in attrs.values())
  print(p.name, 'validated', len(g['meshes']), 'meshes')
