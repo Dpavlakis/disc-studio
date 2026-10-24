@@ -46,7 +46,7 @@ def label(key):
   logo(im,'xbox',(600,219,460,125),'#89d536')
   d.line((180,351,1020,351),fill='#7cb836',width=6)
  elif key=='x360':
-  text(im,(600,214),'XBOX 360',85,'#43563a',True)
+  logo(im,'x360-wordmark',(600,214,615,115))
   d.arc((-280,1028,1460,1950),195,339,fill='#69bd38',width=125)
   d.arc((-280,1003,1460,1925),195,339,fill='#b7d77b',width=13)
   text(im,(600,310),'PLAY WITHOUT LIMITS',23,'#66805c')

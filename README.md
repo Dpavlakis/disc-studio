@@ -35,3 +35,5 @@ The studio starts with the approved platform-specific placeholder covers for all
 Original Xbox has an additional **Disc-matched security** finish: the X, Xbox and genuine lettering, outer security dashes and serial text use the same reflective data material as the disc. The geometric background lines and checkerboard squares use a separate faint silver finish at 10% opacity so they only subtly catch the light. The original Xbox model remains a separate option.
 
 Xbox 360 also offers a separate **Disc-matched security** finish, with disc-textured Xbox logos, XBOX 360 lettering, security dashes and serial text over a faint 10%-opacity version of its original circular swirl pattern. The existing Xbox 360 finishes remain available.
+
+The approved disc-matched Xbox finishes are selected by default. Disc Studio remembers your finish choices when browser storage is available. The Xbox 360 starter cover uses the supplied Xbox 360 wordmark.
