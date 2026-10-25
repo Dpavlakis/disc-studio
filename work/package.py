@@ -34,6 +34,8 @@ from refine_ps1 import update_centre_transparency
 update_centre_transparency(root/'ps1-black-disc.glb')
 from embed_default_labels import update as embed_approved_cover
 for current_model in root.glob('*.glb'):embed_approved_cover(current_model)
+from match_gamecube_security_material import update as match_gc_security
+match_gc_security(root/'gamecube-disc.glb')
 from build_xbox_disc_matched import build as build_disc_matched_xbox
 build_disc_matched_xbox()
 from build_xbox360_disc_matched import build as build_disc_matched_360
@@ -104,7 +106,7 @@ pngButton.onclick=async()=>{pngButton.disabled=true;try{if(!v.loaded)throw new E
 v.addEventListener('load',()=>{pngButton.disabled=false});
 v.addEventListener('error',()=>{pngButton.disabled=true});
 const showArt=document.getElementById('show-art');const artTextures=new WeakMap();
-function updateArtwork(){if(!v.model)return;const m=v.model.materials.find(m=>m.name==='TOP_ART_REPLACE_THIS_TEXTURE');if(!m)return;const p=m.pbrMetallicRoughness;if(!artTextures.has(m))artTextures.set(m,p.baseColorTexture.texture);const enabled=showArt.checked;p.baseColorTexture.setTexture(enabled?artTextures.get(m):null);m.setAlphaMode(enabled&&activeSystem!=='gamecube'?'MASK':'BLEND');p.setBaseColorFactor(enabled?[1,1,1,activeSystem==='gamecube'?.94:1]:[1,1,1,0]);p.setMetallicFactor(0);p.setRoughnessFactor(.36);const badge=v.model.materials.find(m=>m.name==='TOP_PERMANENT_PS2_BRANDING');if(badge){badge.setAlphaMode('BLEND');badge.pbrMetallicRoughness.setBaseColorFactor([1,1,1,enabled&&systemState[activeSystem].branding!==false?1:0])}applyPS1LabelStyle()}
+function updateArtwork(){if(!v.model)return;const m=v.model.materials.find(m=>m.name==='TOP_ART_REPLACE_THIS_TEXTURE');if(!m)return;const p=m.pbrMetallicRoughness;if(!artTextures.has(m))artTextures.set(m,p.baseColorTexture.texture);const enabled=showArt.checked;p.baseColorTexture.setTexture(enabled?artTextures.get(m):null);m.setAlphaMode(enabled&&activeSystem!=='gamecube'?'MASK':'BLEND');p.setBaseColorFactor(enabled?[1,1,1,activeSystem==='gamecube'?.94:1]:[1,1,1,0]);p.setMetallicFactor(0);p.setRoughnessFactor(.36);const badge=v.model.materials.find(m=>m.name==='TOP_PERMANENT_PS2_BRANDING');if(badge){badge.setAlphaMode('BLEND');badge.pbrMetallicRoughness.setBaseColorFactor([1,1,1,systemState[activeSystem].branding!==false?1:0])}applyPS1LabelStyle()}
 XBOX_HEADER_SCRIPT
 PS1_LABEL_CONTROLS_SCRIPT
 GAMECUBE_LABEL_SCRIPT
@@ -129,7 +131,7 @@ async function applyArt(){
  if(artTextures.get(m)!==texture)artTextures.set(m,texture);updateArtwork();
  await applyGCLabel();
 }
-showArt.onchange=()=>{updateArtwork();if(activeSystem==='gamecube')artworkUpdate=applyGCLabel();s.textContent=showArt.checked?'Artwork shown.':'Artwork hidden. Your image is kept for when you turn it back on.'};
+showArt.onchange=()=>{updateArtwork();s.textContent=showArt.checked?'Artwork shown.':'Artwork hidden. Your image is kept for when you turn it back on.'};
 v.addEventListener('load',async()=>{const model=v.model,system=activeSystem;syncArtworkControls();try{await requestArtworkUpdate();await waitForArtwork();await v.updateComplete;if(model!==v.model||system!==activeSystem)return;v.style.visibility='visible';s.textContent='Ready. Reflections change as you rotate the disc.'}catch(error){if(model===v.model&&system===activeSystem)v.style.visibility='visible';s.textContent='Could not apply artwork: '+error.message}});v.addEventListener('error',()=>{s.textContent='Viewer could not load. Use the included GLB files in a 3D app.'});
 document.querySelectorAll('[data-finish]').forEach(b=>b.onclick=()=>{systemState[activeSystem].finish=b.dataset.finish;saveFinishes();markFinish();s.textContent='Loading finish…';v.src='data:model/gltf-binary;base64,'+models[b.dataset.finish]});
 document.getElementById('art').onchange=async e=>{if(!e.target.files[0])return;if(artURL){artworkImageCache.delete(artURL);URL.revokeObjectURL(artURL)}artURL=URL.createObjectURL(e.target.files[0]);systemState[activeSystem].art=artURL;systemState[activeSystem].artRotation=0;systemState[activeSystem].artCoverage=100;syncArtworkControls();try{await requestArtworkUpdate();s.textContent='Artwork replaced. Download edited GLB to keep it.'}catch(err){s.textContent='Could not apply artwork: '+err.message}};

@@ -25,6 +25,15 @@ const assets=fs.readFileSync('outputs/branding-source/gamecube-label/assets.json
  // Uploading or removing artwork must not change an enabled branding layer.
  state.gamecube.art='blob:uploaded-art';await run('applyGCLabel()');assert.equal(panel.pbrMetallicRoughness.factor[3],1);
  state.gamecube.art=null;await run('applyGCLabel()');assert.equal(panel.pbrMetallicRoughness.factor[3],1);assert.equal(foil.pbrMetallicRoughness.factor[3],.90);
+ // Artwork and branding checkboxes form four independent visibility states.
+ for(const artwork of [false,true])for(const branding of [false,true]){
+  ctx.showArt.checked=artwork;state.gamecube.label.enabled=branding;
+  await run('applyGCLabel()');
+  assert.equal(panel.pbrMetallicRoughness.factor[3],branding?1:0);
+  assert.equal(foil.pbrMetallicRoughness.factor[3],branding?.90:0);
+  assert.equal(ctx.showArt.checked,artwork);
+ }
+ state.gamecube.label.enabled=true;ctx.showArt.checked=true;await run('applyGCLabel()');
  assert.strictEqual(foil.pbrMetallicRoughness.baseColorTexture.texture.source.element,paints[1]);assert(uploads>10);
  console.log('Verified GameCube label masks, live panel colour, four-character validation, seal/rating switching, shared rotation, visibility, console memory, reset and baked canvas texture for export.');
 })().catch(e=>{console.error(e);process.exitCode=1});

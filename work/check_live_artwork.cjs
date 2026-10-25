@@ -95,6 +95,20 @@ const watchdog=setTimeout(()=>{console.error('Live artwork checks did not finish
  run("chooseSystem('ps2');chooseSystem('gamecube')");assert.equal(run('systemState.gamecube.artCoverage'),103);assert.equal(run('systemState.gamecube.artRotation'),24);
  await run('requestArtworkUpdate()');assert.equal(canvases[0].calls.find(c=>c.kind==='draw').args[3],2048*1.03);
  let gcExport;viewer.exportScene=async()=>{gcExport={alpha:gcAlpha,color:gcColor,texture:textureSlot.texture};return new Blob(['glb'])};await elements.get('export').onclick();assert.equal(gcExport.alpha,'BLEND');assert.equal(gcExport.color[3],.94);assert(gcExport.texture);
+ // Hiding GameCube artwork must leave its enabled branding visible.
+ elements.get('show-art').checked=false;elements.get('show-art').onchange();
+ assert.equal(gcColor[3],0);assert.equal(gcPanel.pbrMetallicRoughness.color[3],1);assert.equal(gcFoil.pbrMetallicRoughness.color[3],.90);
+ elements.get('gc-label-enabled').checked=false;elements.get('gc-label-enabled').oninput();await run('artworkUpdate');
+ elements.get('show-art').checked=true;elements.get('show-art').onchange();
+ assert.equal(gcColor[3],.94);assert.equal(gcPanel.pbrMetallicRoughness.color[3],0);assert.equal(gcFoil.pbrMetallicRoughness.color[3],0);
+ elements.get('gc-label-enabled').checked=true;elements.get('gc-label-enabled').oninput();await run('artworkUpdate');
+ // PS2 branding likewise remains independent from artwork visibility.
+ viewer.model.materials.push(badge);
+ run("chooseSystem('ps2')");elements.get('show-branding').checked=true;elements.get('show-branding').onchange();
+ elements.get('show-art').checked=false;elements.get('show-art').onchange();assert.equal(badgeAlpha,1);
+ elements.get('show-branding').checked=false;elements.get('show-branding').onchange();assert.equal(badgeAlpha,0);
+ elements.get('show-art').checked=true;elements.get('show-art').onchange();assert.equal(badgeAlpha,0);
+ run("chooseSystem('gamecube')");await run('requestArtworkUpdate()');
  // Initial baked branding stays hidden until the editable canvas and model
  // update finish; the viewer then reveals one prepared presentation.
  viewer.style.visibility='hidden';let finishUpdate;viewer.updateComplete=new Promise(resolve=>{finishUpdate=resolve});

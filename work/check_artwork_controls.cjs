@@ -39,7 +39,7 @@ const run=code=>vm.runInContext(code,context);
  assert.equal(exportSnapshots.at(-1),textureSlot.texture);assert(textureSlot.texture.url.startsWith('data:mock-canvas-'));
  await elements.get('art-angle-reset').onclick();assert.equal(textureSlot.texture.url,'blob:upload-1');
  elements.get('show-branding').checked=true;elements.get('show-branding').onchange();assert.equal(badgeAlpha,1);
- elements.get('show-art').checked=false;elements.get('show-art').onchange();assert.equal(badgeAlpha,0);
+ elements.get('show-art').checked=false;elements.get('show-art').onchange();assert.equal(badgeAlpha,1);
  elements.get('show-art').checked=true;elements.get('show-art').onchange();assert.equal(badgeAlpha,1);
  run("chooseSystem('xbox360')");await elements.get('art').onchange({target:{files:[{}]}});
  run("systemState.xbox360.header='classic'");canvases.length=0;await run('setArtworkAngle(17)');

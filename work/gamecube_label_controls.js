@@ -34,7 +34,7 @@ async function applyGCLabel(){
  if(activeSystem!=='gamecube'||!v.model)return;
  const model=v.model;const panel=model.materials.find(m=>m.name==='GAMECUBE_LABEL_PANEL');const foil=model.materials.find(m=>m.name==='GAMECUBE_LABEL_FOIL');if(!panel||!foil)return;
  const revision=++gcLabelRevision;const state={...gcLabelState()};syncGCLabelControls();
- const enabled=state.enabled&&showArt.checked;
+ const enabled=state.enabled;
  for(const [m,visible] of [[panel,enabled&&state.panel],[foil,enabled]]){m.setAlphaMode(visible&&m===panel?'MASK':'BLEND');m.pbrMetallicRoughness.setBaseColorFactor(visible?(m===foil?[.68,.68,.68,.90]:[1,1,1,1]):[1,1,1,0])}
  if(!enabled)return;
  const names=['logo',state.seal,...(state.rating==='none'?[]:['rating-'+state.rating])];

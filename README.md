@@ -37,3 +37,7 @@ Original Xbox has an additional **Disc-matched security** finish: the X, Xbox an
 Xbox 360 also offers a separate **Disc-matched security** finish, with disc-textured Xbox logos, XBOX 360 lettering, security dashes and serial text over a faint 20%-opacity version of its original circular swirl pattern. The existing Xbox 360 finishes remain available.
 
 The approved disc-matched Xbox finishes are selected by default. Disc Studio remembers your finish choices when browser storage is available. The Xbox 360 starter cover uses the supplied Xbox 360 wordmark.
+
+Artwork and separate branding visibility are independent: you can display either layer alone, both, or neither. This applies to GameCube branding and the separate PS2 label band.
+
+GameCube security dashes and ring text match the disc data material on both sides. The moulded clear hub lettering retains its plastic finish.
