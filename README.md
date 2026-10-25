@@ -41,3 +41,5 @@ The approved disc-matched Xbox finishes are selected by default. Disc Studio rem
 Artwork and separate branding visibility are independent: you can display either layer alone, both, or neither. This applies to GameCube branding and the separate PS2 label band.
 
 GameCube security dashes and ring text match the disc data material on both sides. The moulded clear hub lettering retains its plastic finish.
+
+Starter covers are generated from editable SVG layouts and rendered to 4096px with supersampled antialiasing. The Original Xbox accent follows the lower rim, and the GameCube placeholder text sits above the centre hub so the lower branding panel cannot cover it.

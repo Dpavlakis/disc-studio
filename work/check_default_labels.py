@@ -8,9 +8,9 @@ assert expected=={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in (RO
 html=(ROOT/'outputs/studio.html').read_text(encoding='utf-8')
 for system,asset in {'ps1':'ps1','ps2':'ps2','ps3':'ps3','ps4':'ps4','xbox':'xbox','xbox360':'x360','gamecube':'gc','ps2Branding':'ps2-branding'}.items():
  path=ROOT/'outputs/default-labels'/(asset+'.png')
- image=Image.open(path);assert image.size==(1200,1200)
+ image=Image.open(path);assert image.size==(4096,4096)
  # Physical hub and hole are not painted into these cover images.
- if system!='ps2Branding':assert image.getpixel((600,600))[3]==255
+ if system!='ps2Branding':assert image.getpixel((2048,2048))[3]==255
 assert "let url=artURL;let texture;" in html
 assert all(text not in html for text in ['GC-07','Expanded controls','THE MATERIAL COLLECTION','OPTICAL / MATERIAL STUDY','LOCAL WORKSPACE'])
 assert 'print-intensity' not in html and 'print-dot-size' not in html
@@ -27,3 +27,17 @@ for name,key in SYSTEMS.items():
   view=g['bufferViews'][g['images'][texture['source']]['bufferView']];o=view.get('byteOffset',0)
   assert b[o:o+view['byteLength']]==(ROOT/'outputs/default-labels'/(asset+'.png')).read_bytes()
 print('Native models contain the approved starter covers; old embedded placeholders cannot flash during loading.')
+
+# Covers retain fractional edge coverage, not binary stair-step boundaries.
+import numpy as np
+ps3=np.asarray(Image.open(ROOT/'outputs/default-labels/ps3.png'))
+xs=np.arange(400,3700);ys=np.rint((375-45*(xs/4096))*4096/1200).astype(int)
+samples=np.concatenate([ps3[ys+dy,xs,0] for dy in [-1,0,1]])
+assert np.count_nonzero((samples>60)&(samples<200))>100
+xbox=np.asarray(Image.open(ROOT/'outputs/default-labels/xbox.png').convert('RGB'))
+green=(xbox[:,:,1].astype(int)>xbox[:,:,0].astype(int)*1.4)&(xbox[:,:,0]>60)
+assert green[int(4096*.65):].sum()>1000
+assert green[int(4096*.29):int(4096*.36)].sum()==0
+svg=(ROOT/'outputs/branding-source/default-labels/templates/gc.svg').read_text()
+assert 'y="386"' in svg and 'y="414"' in svg and 'y="851"' not in svg
+print('4096px cover antialiasing, lower Xbox accent and visible GameCube text placement verified.')
