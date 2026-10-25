@@ -1,14 +1,15 @@
 const fs=require('fs'),vm=require('vm'),assert=require('assert');
-const fields=new Map(),paints=[];let uploads=0;
+const fields=new Map(),paints=[];let uploads=0,reads=0;
 const el=id=>{if(!fields.has(id))fields.set(id,{value:'',checked:false,textContent:'',setCustomValidity(v){this.validity=v}});return fields.get(id)};
 function material(name){return {name,setAlphaMode(v){this.alpha=v},pbrMetallicRoughness:{baseColorTexture:{setTexture(v){this.texture=v}},setBaseColorFactor(v){this.factor=v}}}}
 const panel=material('GAMECUBE_LABEL_PANEL'),foil=material('GAMECUBE_LABEL_FOIL');
 function canvas(){const calls=[];const c={calls,width:0,height:0};const ctx={setTransform(...x){calls.push(['transform',...x])},clearRect(){calls.length=0},save(){},restore(){},scale(){},translate(){},rotate(a){calls.push(['rotate',a])},beginPath(){},arc(){},clip(){},fillRect(...x){calls.push(['panel',this.fillStyle,...x])},strokeRect(){},drawImage(...x){calls.push(['image',...x,{alpha:this.globalAlpha??1,composite:this.globalCompositeOperation||'source-over'}])},fillText(...x){calls.push(['text',...x])},measureText(s){return {width:s.length*15}}};c.getContext=()=>ctx;paints.push(c);return c}
 const viewer={model:{materials:[panel,foil]},createCanvasTexture(){return {source:{element:canvas(),update(){uploads++}}}}};
-const state={gamecube:{art:null}};const ctx=vm.createContext({document:{activeElement:null,getElementById:el},systemState:state,activeSystem:'gamecube',v:viewer,showArt:{checked:true},s:{},readArtworkImage:async url=>({url}),artworkUpdate:Promise.resolve(),console});
+const state={gamecube:{art:null}};const ctx=vm.createContext({document:{activeElement:null,getElementById:el},systemState:state,activeSystem:'gamecube',v:viewer,showArt:{checked:true},s:{},readArtworkImage:async url=>{reads++;return {url}},artworkUpdate:Promise.resolve(),console});
 const assets=fs.readFileSync('outputs/branding-source/gamecube-label/assets.json','utf8');const source=fs.readFileSync('work/gamecube_label_controls.js','utf8').replace('GC_BRANDING_ASSETS',assets);vm.runInContext(source,ctx);const run=code=>vm.runInContext(code,ctx);
 (async()=>{
- await run('applyGCLabel()');assert.equal(paints.length,2);assert.equal(panel.alpha,'MASK');assert.equal(foil.alpha,'BLEND');assert.equal(paints[1].width,8192);assert.equal(state.gamecube.label.code,'GZWE');assert(paints[1].calls.some(x=>x[0]==='text'&&x[1]==='DL • DOL • GZWE • USA'));
+ await run('applyGCLabel()');assert.equal(paints.length,2);assert.equal(panel.alpha,'MASK');assert.equal(foil.alpha,'BLEND');assert.equal(paints[1].width,2048);assert.equal(state.gamecube.label.code,'GZWE');assert(paints[1].calls.some(x=>x[0]==='text'&&x[1]==='DL • DOL • GZWE • USA'));
+ const firstUploads=uploads,firstReads=reads;await run('applyGCLabel()');assert.equal(uploads,firstUploads);assert.equal(reads,firstReads);
  const logoDraw=paints[1].calls.find(x=>x[0]==='image');assert(Math.abs(logoDraw[4]/logoDraw[5]-3840/866.1)<1e-9);assert(paints[0].calls.some(x=>x[0]==='image'&&x[1]===paints[1]));assert(decodeURIComponent(logoDraw[1].url).includes('width="3840"'));
  const logoKnockout=paints[1].calls.filter(x=>x[0]==='image').at(-1).at(-1);assert.equal(logoKnockout.alpha,.50);assert.equal(logoKnockout.composite,'destination-out');const panelKnockout=paints[0].calls.find(x=>x[0]==='image').at(-1);assert.equal(panelKnockout.alpha,1);assert.equal(panelKnockout.composite,'destination-out');
  const rotations=paints[1].calls.filter(x=>x[0]==='rotate').map(x=>x[1]).filter(value=>Math.abs(value)>1e-10);assert(rotations[1]>0);assert(rotations.at(-1)<0); // Letters follow the tangent of the lower arc.
@@ -35,5 +36,7 @@ const assets=fs.readFileSync('outputs/branding-source/gamecube-label/assets.json
  }
  state.gamecube.label.enabled=true;ctx.showArt.checked=true;await run('applyGCLabel()');
  assert.strictEqual(foil.pbrMetallicRoughness.baseColorTexture.texture.source.element,paints[1]);assert(uploads>10);
- console.log('Verified GameCube label masks, live panel colour, four-character validation, seal/rating switching, shared rotation, visibility, console memory, reset and baked canvas texture for export.');
+ await run('applyGCLabel(true)');assert.equal(foil.pbrMetallicRoughness.baseColorTexture.texture.source.element.width,8192);assert.equal(paints.length,3);
+ await run('applyGCLabel(false)');assert.equal(foil.pbrMetallicRoughness.baseColorTexture.texture.source.element.width,2048);assert.equal(paints.length,3);
+ console.log('Verified cached 2K preview, original 8K export and GameCube label masks, live panel colour, four-character validation, seal/rating switching, shared rotation, visibility, console memory, reset and baked canvas texture for export.');
 })().catch(e=>{console.error(e);process.exitCode=1});

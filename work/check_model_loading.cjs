@@ -1,0 +1,20 @@
+const fs=require('fs'),vm=require('vm'),assert=require('assert'),zlib=require('zlib');
+const source=fs.readFileSync('work/model_loading.js','utf8');
+const packed=s=>'gzip:'+zlib.gzipSync(Buffer.from(s)).toString('base64');
+const models={a:packed('MODEL A'),b:packed('MODEL B'),legacy:'RAW',bad:'gzip:'+Buffer.from('invalid gzip').toString('base64')};
+const blobs=new Map(),writes=[],elements=new Map();let next=0;
+const viewer={style:{},loaded:false,set src(value){this.value=value;writes.push(value)},get src(){return this.value}};
+const document={getElementById(id){if(!elements.has(id))elements.set(id,{});return elements.get(id)}};
+const context=vm.createContext({models,v:viewer,document,s:{},Blob,Response,DecompressionStream,Uint8Array,atob,URL:{createObjectURL(blob){const id='blob:'+(++next);blobs.set(id,blob);return id}}});
+vm.runInContext(source,context);const run=s=>vm.runInContext(s,context);
+(async()=>{
+ const [a1,a2]=await Promise.all([run("unpackModelSource('a')"),run("unpackModelSource('a')")]);assert.equal(a1,a2);assert.equal(blobs.size,1);
+ assert.equal(await blobs.get(a1).text(),'MODEL A');
+ const old=run("setDiscModel('a')"),latest=run("setDiscModel('b')");
+ assert.equal(viewer.style.visibility,'hidden');assert.equal(document.getElementById('export').disabled,true);
+ await Promise.all([old,latest]);assert.equal(writes.length,1);assert.equal(await blobs.get(viewer.src).text(),'MODEL B');
+ viewer.loaded=true;await run("setDiscModel('b')");assert.equal(viewer.style.visibility,'visible');assert.equal(document.getElementById('export').disabled,false);assert.equal(blobs.size,2);
+ await run("setDiscModel('legacy')");assert.equal(viewer.src,'data:model/gltf-binary;base64,RAW');
+ await assert.rejects(run("unpackModelSource('bad')"));assert.equal(run("modelSourceCache.has('bad')"),false);
+ console.log('Verified gzip decoding, one preparation per disc, cached switching, rapid-click stale-request protection, export readiness, legacy support and failed-cache cleanup.');
+})().catch(error=>{console.error(error);process.exitCode=1});

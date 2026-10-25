@@ -11,7 +11,8 @@ Left-drag orbits the view, middle-drag rotates the disc itself, right-drag pans,
 ## Project folders
 
 - `outputs/studio.html`: current self-contained studio; older generated page copies were removed.
-- `outputs/*.glb`: current disc models, with embedded textures. Units are metres; full-size discs are 120 mm, GameCube is 80 mm, centre holes are 15 mm.
+- `outputs/*.glb`: preserved build masters, with embedded textures.
+- `outputs/optimized-models/*.glb`: smaller models used by the studio and downloadable model pack, with exact indexed triangle data. Units are metres; full-size discs are 120 mm, GameCube is 80 mm, centre holes are 15 mm.
 - `outputs/*.png`: working model textures.
 - `outputs/previews/`: design studies and comparison renders, including the unapplied GameCube construction draft.
 - `outputs/branding-source/`: supplied logos, fonts and editable branding masks.
@@ -43,3 +44,9 @@ Artwork and separate branding visibility are independent: you can display either
 GameCube security dashes and ring text match the disc data material on both sides. The moulded clear hub lettering retains its plastic finish.
 
 Starter covers are generated from editable SVG layouts and rendered to 4096px with supersampled antialiasing. The Original Xbox accent follows the lower rim, and the GameCube placeholder text sits above the centre hub so the lower branding panel cannot cover it.
+
+Runtime optimisation shares identical vertex records without simplifying shapes or quantising coordinates, normals, UVs or colours. Materials, visible artwork and security geometry remain unchanged. The model pack contains the smaller runtime models. The full source masters and verified backup remain available for rebuilding.
+
+GameCube live branding uses cached 2048px textures instead of repainting an 8192px canvas on every artwork update. Edited GLB export temporarily renders the original 8192px foil branding, then restores the lightweight preview. Only the unused native GameCube branding placeholders are reduced in runtime models; the live vector layer replaces them.
+
+The portable page stores compressed model payloads and decompresses the selected disc on demand. Prepared model URLs are reused when switching back. Opening this version requires a current browser with gzip DecompressionStream support.

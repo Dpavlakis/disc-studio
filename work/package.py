@@ -1,5 +1,5 @@
 from pathlib import Path
-import base64,json,struct,zipfile,ast,re
+import base64,json,struct,zipfile,ast,re,gzip
 root=Path(__file__).resolve().parents[1]/'outputs'
 from build_modern_playstation import build as build_modern_ps
 for console in ['ps3','ps4']:build_modern_ps(console)
@@ -40,7 +40,9 @@ from build_xbox_disc_matched import build as build_disc_matched_xbox
 build_disc_matched_xbox()
 from build_xbox360_disc_matched import build as build_disc_matched_360
 build_disc_matched_360()
-models={p.stem:base64.b64encode(p.read_bytes()).decode() for p in root.glob('*.glb') if not p.stem.endswith('-preview')}
+from optimize_disc_models import build_all as optimize_runtime_models
+optimized_root=optimize_runtime_models()
+models={p.stem:'gzip:'+base64.b64encode(gzip.compress(p.read_bytes(),compresslevel=3,mtime=0)).decode() for p in optimized_root.glob('*.glb') if not p.stem.endswith('-preview')}
 lightmaps={str(i):'data:application/octet-stream;base64,'+base64.b64encode((root/'lighting'/f'{i}-softbox.hdr').read_bytes()).decode() for i in range(1,5)}
 environment_presets=json.loads((root/'lighting/environments.json').read_text(encoding='utf-8'))
 for key,preset in environment_presets.items():
@@ -83,8 +85,9 @@ function saveFinishes(){
  try{localStorage.setItem(finishStorageKey,JSON.stringify(Object.fromEntries(Object.entries(systemState).map(([system,state])=>[system,state.finish]))))}catch(error){}
 }
 restoreFinishes();
+MODEL_LOADING_SCRIPT
 function markFinish(){document.querySelectorAll('[data-finish]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.finish===systemState[activeSystem].finish)))}
-function chooseSystem(system){activeSystem=system;markFinish();const ready=Boolean(systemState[system]);document.querySelectorAll('[data-system]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.system===system)));document.querySelectorAll('[data-platform]').forEach(b=>b.hidden=b.dataset.platform!==system||b.dataset.reference==='true');v.style.visibility=ready?'visible':'hidden';emptySystem.hidden=ready;for(const id of ['front-view','back-view','download-png','zoom-out','zoom','zoom-in','fit-view','art','show-art','export'])document.getElementById(id).disabled=!ready;document.getElementById('system-context').textContent=ready?({ps1:'PS1',ps2:'PS2',ps3:'PS3',ps4:'PS4',xbox360:'Xbox 360',xbox:'Original Xbox',gamecube:'GameCube · 80 mm'}[system])+' · Drag to rotate · scroll to zoom · middle drag rotates disc · right drag pans.':'Xbox 360 · Ready for the next disc model';document.getElementById('art').value='';if(ready){artURL=systemState[system].art;s.textContent='Loading '+({ps1:'PS1',ps2:'PS2',ps3:'PS3',ps4:'PS4',xbox360:'Xbox 360',xbox:'Original Xbox',gamecube:'GameCube · 80 mm'}[system])+' disc…';const nextModel='data:model/gltf-binary;base64,'+models[systemState[system].finish];if(system==='gamecube'&&v.src!==nextModel)v.style.visibility='hidden';v.src=nextModel;document.getElementById('download-png').disabled=!v.loaded}else{s.textContent='Xbox 360 section prepared. Switch to PS1 or PS2 to use the current models.'}syncArtworkControls()}
+function chooseSystem(system){activeSystem=system;markFinish();const ready=Boolean(systemState[system]);document.querySelectorAll('[data-system]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.system===system)));document.querySelectorAll('[data-platform]').forEach(b=>b.hidden=b.dataset.platform!==system||b.dataset.reference==='true');v.style.visibility=ready?'visible':'hidden';emptySystem.hidden=ready;for(const id of ['front-view','back-view','download-png','zoom-out','zoom','zoom-in','fit-view','art','show-art','export'])document.getElementById(id).disabled=!ready;document.getElementById('system-context').textContent=ready?({ps1:'PS1',ps2:'PS2',ps3:'PS3',ps4:'PS4',xbox360:'Xbox 360',xbox:'Original Xbox',gamecube:'GameCube · 80 mm'}[system])+' · Drag to rotate · scroll to zoom · middle drag rotates disc · right drag pans.':'Xbox 360 · Ready for the next disc model';document.getElementById('art').value='';if(ready){artURL=systemState[system].art;s.textContent='Loading '+({ps1:'PS1',ps2:'PS2',ps3:'PS3',ps4:'PS4',xbox360:'Xbox 360',xbox:'Original Xbox',gamecube:'GameCube · 80 mm'}[system])+' disc…';setDiscModel(systemState[system].finish);if(!modelPreparationPending)document.getElementById('download-png').disabled=!v.loaded}else{s.textContent='Xbox 360 section prepared. Switch to PS1 or PS2 to use the current models.'}syncArtworkControls()}
 document.querySelectorAll('[data-system]').forEach(b=>b.onclick=()=>chooseSystem(b.dataset.system));
 ENVIRONMENT_CONTROLS_SCRIPT
 DISC_OBJECT_ROTATION_SCRIPT
@@ -103,7 +106,7 @@ async function setView(theta){await customElements.whenDefined('model-viewer');r
 document.getElementById('front-view').onclick=()=>setView(180);
 document.getElementById('back-view').onclick=()=>setView(0);
 pngButton.onclick=async()=>{pngButton.disabled=true;try{if(!v.loaded)throw new Error('Wait for the disc to finish loading.');await waitForArtwork();transparentCapture=true;syncEnvironmentBackground();await v.updateComplete;v.jumpCameraToGoal();await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));const blob=await v.toBlob({mimeType:'image/png',idealAspect:false});if(!blob)throw new Error('The image could not be captured.');saveBlob(blob,'disc-view.png');s.textContent='PNG downloaded with a transparent background, using the current angle and artwork.'}catch(err){s.textContent='PNG export failed: '+err.message}finally{transparentCapture=false;syncEnvironmentBackground();pngButton.disabled=!v.loaded}};
-v.addEventListener('load',()=>{pngButton.disabled=false});
+v.addEventListener('load',()=>{if(!modelPreparationPending)pngButton.disabled=false});
 v.addEventListener('error',()=>{pngButton.disabled=true});
 const showArt=document.getElementById('show-art');const artTextures=new WeakMap();
 function updateArtwork(){if(!v.model)return;const m=v.model.materials.find(m=>m.name==='TOP_ART_REPLACE_THIS_TEXTURE');if(!m)return;const p=m.pbrMetallicRoughness;if(!artTextures.has(m))artTextures.set(m,p.baseColorTexture.texture);const enabled=showArt.checked;p.baseColorTexture.setTexture(enabled?artTextures.get(m):null);m.setAlphaMode(enabled&&activeSystem!=='gamecube'?'MASK':'BLEND');p.setBaseColorFactor(enabled?[1,1,1,activeSystem==='gamecube'?.94:1]:[1,1,1,0]);p.setMetallicFactor(0);p.setRoughnessFactor(.36);const badge=v.model.materials.find(m=>m.name==='TOP_PERMANENT_PS2_BRANDING');if(badge){badge.setAlphaMode('BLEND');badge.pbrMetallicRoughness.setBaseColorFactor([1,1,1,systemState[activeSystem].branding!==false?1:0])}applyPS1LabelStyle()}
@@ -132,15 +135,15 @@ async function applyArt(){
  await applyGCLabel();
 }
 showArt.onchange=()=>{updateArtwork();s.textContent=showArt.checked?'Artwork shown.':'Artwork hidden. Your image is kept for when you turn it back on.'};
-v.addEventListener('load',async()=>{const model=v.model,system=activeSystem;syncArtworkControls();try{await requestArtworkUpdate();await waitForArtwork();await v.updateComplete;if(model!==v.model||system!==activeSystem)return;v.style.visibility='visible';s.textContent='Ready. Reflections change as you rotate the disc.'}catch(error){if(model===v.model&&system===activeSystem)v.style.visibility='visible';s.textContent='Could not apply artwork: '+error.message}});v.addEventListener('error',()=>{s.textContent='Viewer could not load. Use the included GLB files in a 3D app.'});
-document.querySelectorAll('[data-finish]').forEach(b=>b.onclick=()=>{systemState[activeSystem].finish=b.dataset.finish;saveFinishes();markFinish();s.textContent='Loading finish…';v.src='data:model/gltf-binary;base64,'+models[b.dataset.finish]});
+v.addEventListener('load',async event=>{if(modelPreparationPending||(event.detail?.url&&String(event.detail.url)!==v.src))return;const model=v.model,system=activeSystem;syncArtworkControls();try{await requestArtworkUpdate();await waitForArtwork();await v.updateComplete;if(model!==v.model||system!==activeSystem)return;v.style.visibility='visible';document.getElementById('export').disabled=false;s.textContent='Ready. Reflections change as you rotate the disc.'}catch(error){if(model===v.model&&system===activeSystem)v.style.visibility='visible';s.textContent='Could not apply artwork: '+error.message}});v.addEventListener('error',()=>{s.textContent='Viewer could not load. Use the included GLB files in a 3D app.'});
+document.querySelectorAll('[data-finish]').forEach(b=>b.onclick=()=>{systemState[activeSystem].finish=b.dataset.finish;saveFinishes();markFinish();s.textContent='Loading finish…';setDiscModel(b.dataset.finish)});
 document.getElementById('art').onchange=async e=>{if(!e.target.files[0])return;if(artURL){artworkImageCache.delete(artURL);URL.revokeObjectURL(artURL)}artURL=URL.createObjectURL(e.target.files[0]);systemState[activeSystem].art=artURL;systemState[activeSystem].artRotation=0;systemState[activeSystem].artCoverage=100;syncArtworkControls();try{await requestArtworkUpdate();s.textContent='Artwork replaced. Download edited GLB to keep it.'}catch(err){s.textContent='Could not apply artwork: '+err.message}};
-document.getElementById('export').onclick=async()=>{try{await waitForArtwork();const blob=await v.exportScene();const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='custom-disc.glb';a.click();setTimeout(()=>URL.revokeObjectURL(url),10000)}catch(err){s.textContent='Export failed: '+err.message}};
+document.getElementById('export').onclick=async()=>{const model=v.model,system=activeSystem;try{await waitForArtwork();if(system!==activeSystem||model!==v.model)throw new Error('The selected disc changed. Export again.');if(system==='gamecube')await applyGCLabel(true);if(system!==activeSystem||model!==v.model)throw new Error('The selected disc changed. Export again.');const blob=await v.exportScene();const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='custom-disc.glb';a.click();setTimeout(()=>URL.revokeObjectURL(url),10000)}catch(err){s.textContent='Export failed: '+err.message}finally{if(system==='gamecube'&&activeSystem===system&&v.model===model)await applyGCLabel(false)}};
 chooseSystem('gamecube');</script></html>'''
 html=re.sub(r'<header>.*?</header>',(root.parent/'work/studio_header.html').read_text(encoding='utf-8'),html,count=1,flags=re.S)
 html=html.replace('<div class="disc-viewport">','<div class="disc-viewport"><div class="stage-help">Drag to rotate<span>·</span>Scroll to zoom<span>·</span>Middle-drag: disc rotation<span>·</span>Right-drag: pan</div>')
 html=html.replace('<script>const models=','<style>'+(root.parent/'work/studio.css').read_text(encoding='utf-8')+'</style><script>const models=')
-(root/'studio.html').write_text(html.replace('MODELS',json.dumps(models)).replace('ENVIRONMENT_CONTROLS_SCRIPT',environment_controls_js).replace('DISC_OBJECT_ROTATION_SCRIPT',disc_object_rotation_js).replace('XBOX_HEADER_SCRIPT',header_js).replace('PS1_LABEL_CONTROLS_SCRIPT',ps1_label_controls_js).replace('GAMECUBE_LABEL_SCRIPT',gamecube_label_js).replace('ARTWORK_CONTROLS_SCRIPT',artwork_controls_js),encoding='utf-8')
+(root/'studio.html').write_text(html.replace('MODELS',json.dumps(models)).replace('MODEL_LOADING_SCRIPT',(root.parent/'work/model_loading.js').read_text(encoding='utf-8')).replace('ENVIRONMENT_CONTROLS_SCRIPT',environment_controls_js).replace('DISC_OBJECT_ROTATION_SCRIPT',disc_object_rotation_js).replace('XBOX_HEADER_SCRIPT',header_js).replace('PS1_LABEL_CONTROLS_SCRIPT',ps1_label_controls_js).replace('GAMECUBE_LABEL_SCRIPT',gamecube_label_js).replace('ARTWORK_CONTROLS_SCRIPT',artwork_controls_js),encoding='utf-8')
 print('Updated office-background studio saved as studio.html')
 (root/'READ-ME.txt').write_text('''OPTICAL DISC MODEL PACK
 
@@ -187,7 +190,7 @@ with zipfile.ZipFile(root/'optical-disc-pack.zip','w',zipfile.ZIP_DEFLATED) as z
   if p.suffix=='.html' and p.name!='studio.html':continue
   if len(rel.parts)>1 and rel.parts[0] not in allowed_folders:continue
   if p.name.startswith('007-') or p.name=='disc-cleanup-report.csv':continue
-  z.write(p,rel)
+  z.write(optimized_root/p.name if p.suffix=='.glb' and len(rel.parts)==1 else p,rel)
 print('Packaged', (root/'optical-disc-pack.zip').stat().st_size, 'bytes')
 
 

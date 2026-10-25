@@ -1,7 +1,7 @@
 from pathlib import Path
 import zipfile, json, struct
 root=Path('outputs')
-models=sorted(p for p in root.glob('*.glb') if not p.stem.endswith('-preview'))
+models=sorted(p for p in (root/'optimized-models').glob('*.glb') if not p.stem.endswith('-preview'))
 assert len(models)==12
 textures=['label-art.png','groove-normal.png','hub-branding.png','hub-metal-roughness.png','disc-substrate-marks.png','disc-substrate-roughness.png','top-ps2-branding.png']
 textures += ['ps1-mastering-ring.png','gamecube-mastering-details.png','gamecube-label-panel.png','gamecube-label-foil.png']

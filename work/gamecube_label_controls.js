@@ -1,5 +1,11 @@
 const gcBrandingAssets=GC_BRANDING_ASSETS;
 const gcLabelTextures=new WeakMap();
+const gcLabelRenderedStates=new WeakMap();
+const gcLabelImages=new Map();
+function gcLabelImage(key){
+ if(!gcLabelImages.has(key))gcLabelImages.set(key,readArtworkImage(gcAssetURL(key)).catch(error=>{gcLabelImages.delete(key);throw error}));
+ return gcLabelImages.get(key);
+}
 let gcLabelRevision=0;
 const gcFields={enabled:'gc-label-enabled',panel:'gc-panel-enabled',color:'gc-panel-color',seal:'gc-seal',rating:'gc-rating',code:'gc-game-code',angle:'gc-label-angle'};
 function gcLabelState(){return systemState.gamecube.label||(systemState.gamecube.label={enabled:true,panel:true,color:'#080808',seal:'seal',rating:'e',code:'GZWE',angle:0})}
@@ -14,8 +20,11 @@ function syncGCLabelControls(){
 function gcAssetBox(key){const values=gcBrandingAssets[key].match(/viewBox="([^"]+)"/)[1].trim().split(/[\s,]+/).map(Number);return {width:values[2],height:values[3]}}
 function gcAssetURL(key){const box=gcAssetBox(key);const svg=gcBrandingAssets[key].replace('<svg ','<svg width="'+box.width+'" height="'+box.height+'" ');return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg)}
 function gcDrawAsset(c,key,image,x,y,width,height){const box=gcAssetBox(key);const scale=Math.min(width/box.width,height/box.height);const w=box.width*scale,h=box.height*scale;c.drawImage(image,x+(width-w)/2,y+(height-h)/2,w,h)}
-function gcCanvasTexture(material){
- let texture=gcLabelTextures.get(material);if(!texture){texture=v.createCanvasTexture();texture.source.element.width=texture.source.element.height=material.name==='GAMECUBE_LABEL_FOIL'?8192:2048;gcLabelTextures.set(material,texture)}return texture;
+function gcCanvasTexture(material,highResolution=false){
+ let sizes=gcLabelTextures.get(material);if(!sizes){sizes=new Map();gcLabelTextures.set(material,sizes)}
+ const size=material.name==='GAMECUBE_LABEL_FOIL'&&highResolution?8192:2048;
+ if(!sizes.has(size)){const texture=v.createCanvasTexture();texture.source.element.width=texture.source.element.height=size;sizes.set(size,texture)}
+ return sizes.get(size);
 }
 function gcFrame(canvas,angle,clear=true){
  const c=canvas.getContext('2d');c.setTransform(1,0,0,-1,0,canvas.height);if(clear)c.clearRect(0,0,canvas.width,canvas.height);
@@ -30,18 +39,24 @@ function gcCurvedModelText(c){
  const text='MODEL No. DOL-006(USA)';c.font='30px Arial';c.textAlign='center';c.textBaseline='alphabetic';let total=c.measureText(text).width;let offset=-total/2;
  for(const ch of text){const width=c.measureText(ch).width;const a=Math.PI/2-(offset+width/2)/radius;c.save();c.translate(640+radius*Math.cos(a),640+radius*Math.sin(a));c.rotate(a-Math.PI/2);c.fillText(ch,0,0);c.restore();offset+=width}
 }
-async function applyGCLabel(){
+async function applyGCLabel(highResolution=false){
  if(activeSystem!=='gamecube'||!v.model)return;
  const model=v.model;const panel=model.materials.find(m=>m.name==='GAMECUBE_LABEL_PANEL');const foil=model.materials.find(m=>m.name==='GAMECUBE_LABEL_FOIL');if(!panel||!foil)return;
  const revision=++gcLabelRevision;const state={...gcLabelState()};syncGCLabelControls();
  const enabled=state.enabled;
  for(const [m,visible] of [[panel,enabled&&state.panel],[foil,enabled]]){m.setAlphaMode(visible&&m===panel?'MASK':'BLEND');m.pbrMetallicRoughness.setBaseColorFactor(visible?(m===foil?[.68,.68,.68,.90]:[1,1,1,1]):[1,1,1,0])}
  if(!enabled)return;
+ const panelTexture=gcCanvasTexture(panel,highResolution);const texture=gcCanvasTexture(foil,highResolution);
+ const renderKey=JSON.stringify({...state,highResolution});
+ if(gcLabelRenderedStates.get(texture)===renderKey&&gcLabelRenderedStates.get(panelTexture)===renderKey){
+  if(panel.pbrMetallicRoughness.baseColorTexture.texture!==panelTexture)panel.pbrMetallicRoughness.baseColorTexture.setTexture(panelTexture);
+  if(foil.pbrMetallicRoughness.baseColorTexture.texture!==texture)foil.pbrMetallicRoughness.baseColorTexture.setTexture(texture);
+  return;
+ }
  const names=['logo',state.seal,...(state.rating==='none'?[]:['rating-'+state.rating])];
- const images=await Promise.all(names.map(key=>readArtworkImage(gcAssetURL(key))));
+ const images=await Promise.all(names.map(gcLabelImage));
  if(revision!==gcLabelRevision||activeSystem!=='gamecube'||model!==v.model)return;
- const panelTexture=gcCanvasTexture(panel);
- const texture=gcCanvasTexture(foil);let c=gcFrame(texture.source.element,state.angle);c.fillStyle='#fff';c.strokeStyle='#fff';
+ let c=gcFrame(texture.source.element,state.angle);c.fillStyle='#fff';c.strokeStyle='#fff';
  gcDrawAsset(c,'logo',images[0],390,850,520,130);gcDrawAsset(c,state.seal,images[1],128,825,230,177);if(images[2])gcDrawAsset(c,'rating-'+state.rating,images[2],937,793,161,224);
  c.lineWidth=3;c.strokeRect(298,1058,688,48);gcText(c,'FOR USE ONLY IN USA, CANADA, MEXICO AND LATIN AMERICA',642,1090,20,660);
  gcText(c,'DL • DOL • '+state.code+' • USA',640,1150,31,650);gcCurvedModelText(c);c.restore();
@@ -57,6 +72,7 @@ async function applyGCLabel(){
  c=gcFrame(texture.source.element,state.angle,false);c.globalCompositeOperation='destination-out';c.globalAlpha=.50;
  gcDrawAsset(c,'logo',images[0],390,850,520,130);c.restore();c.globalCompositeOperation='source-over';c.globalAlpha=1;
  texture.source.update();foil.pbrMetallicRoughness.baseColorTexture.setTexture(texture);
+ gcLabelRenderedStates.set(texture,renderKey);gcLabelRenderedStates.set(panelTexture,renderKey);
 
 
 }

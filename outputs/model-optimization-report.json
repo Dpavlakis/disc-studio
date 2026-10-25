@@ -1,0 +1,130 @@
+{
+  "method": "Exact vertex indexing; no simplification or quantization",
+  "models": [
+    {
+      "model": "gamecube-disc.glb",
+      "sourceBytes": 37903240,
+      "vertexRecordsBefore": 682200,
+      "vertexRecordsAfter": 262084,
+      "triangleAttributesExact": true,
+      "runtimeBrandingImagesResized": [
+        4,
+        5
+      ],
+      "optimizedBytes": 16684020,
+      "savedPercent": 56.0
+    },
+    {
+      "model": "ps1-black-disc.glb",
+      "sourceBytes": 35605804,
+      "vertexRecordsBefore": 491153,
+      "vertexRecordsAfter": 383311,
+      "triangleAttributesExact": true,
+      "runtimeBrandingImagesResized": [],
+      "optimizedBytes": 27943468,
+      "savedPercent": 21.5
+    },
+    {
+      "model": "ps2-blue-disc.glb",
+      "sourceBytes": 30944416,
+      "vertexRecordsBefore": 535248,
+      "vertexRecordsAfter": 200812,
+      "triangleAttributesExact": true,
+      "runtimeBrandingImagesResized": [],
+      "optimizedBytes": 11700308,
+      "savedPercent": 62.2
+    },
+    {
+      "model": "ps2-gold-disc.glb",
+      "sourceBytes": 30944404,
+      "vertexRecordsBefore": 535248,
+      "vertexRecordsAfter": 200812,
+      "triangleAttributesExact": true,
+      "runtimeBrandingImagesResized": [],
+      "optimizedBytes": 11700296,
+      "savedPercent": 62.2
+    },
+    {
+      "model": "ps2-silver-disc.glb",
+      "sourceBytes": 30944404,
+      "vertexRecordsBefore": 535248,
+      "vertexRecordsAfter": 200812,
+      "triangleAttributesExact": true,
+      "runtimeBrandingImagesResized": [],
+      "optimizedBytes": 11700296,
+      "savedPercent": 62.2
+    },
+    {
+      "model": "ps3-silver-disc.glb",
+      "sourceBytes": 31311236,
+      "vertexRecordsBefore": 547917,
+      "vertexRecordsAfter": 199317,
+      "triangleAttributesExact": true,
+      "runtimeBrandingImagesResized": [],
+      "optimizedBytes": 12020520,
+      "savedPercent": 61.6
+    },
+    {
+      "model": "ps4-silver-disc.glb",
+      "sourceBytes": 31280112,
+      "vertexRecordsBefore": 547287,
+      "vertexRecordsAfter": 199081,
+      "triangleAttributesExact": true,
+      "runtimeBrandingImagesResized": [],
+      "optimizedBytes": 12007052,
+      "savedPercent": 61.6
+    },
+    {
+      "model": "xbox-original-disc-matched.glb",
+      "sourceBytes": 16217332,
+      "vertexRecordsBefore": 144703,
+      "vertexRecordsAfter": 97221,
+      "triangleAttributesExact": true,
+      "runtimeBrandingImagesResized": [],
+      "optimizedBytes": 13124152,
+      "savedPercent": 19.1
+    },
+    {
+      "model": "xbox-original-disc.glb",
+      "sourceBytes": 12591976,
+      "vertexRecordsBefore": 136503,
+      "vertexRecordsAfter": 89021,
+      "triangleAttributesExact": true,
+      "runtimeBrandingImagesResized": [],
+      "optimizedBytes": 9498808,
+      "savedPercent": 24.6
+    },
+    {
+      "model": "xbox360-disc-matched.glb",
+      "sourceBytes": 8893408,
+      "vertexRecordsBefore": 128452,
+      "vertexRecordsAfter": 91952,
+      "triangleAttributesExact": true,
+      "runtimeBrandingImagesResized": [],
+      "optimizedBytes": 6211964,
+      "savedPercent": 30.2
+    },
+    {
+      "model": "xbox360-silver-disc.glb",
+      "sourceBytes": 7441848,
+      "vertexRecordsBefore": 115130,
+      "vertexRecordsAfter": 80674,
+      "triangleAttributesExact": true,
+      "runtimeBrandingImagesResized": [],
+      "optimizedBytes": 4899804,
+      "savedPercent": 34.2
+    },
+    {
+      "model": "xbox360-test.glb",
+      "sourceBytes": 8310296,
+      "vertexRecordsBefore": 120252,
+      "vertexRecordsAfter": 83752,
+      "triangleAttributesExact": true,
+      "runtimeBrandingImagesResized": [],
+      "optimizedBytes": 5628860,
+      "savedPercent": 32.3
+    }
+  ],
+  "sourceBytes": 282388476,
+  "optimizedBytes": 143119548
+}
