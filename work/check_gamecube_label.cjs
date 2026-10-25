@@ -5,7 +5,7 @@ function material(name){return {name,setAlphaMode(v){this.alpha=v},pbrMetallicRo
 const panel=material('GAMECUBE_LABEL_PANEL'),foil=material('GAMECUBE_LABEL_FOIL');
 function canvas(){const calls=[];const c={calls,width:0,height:0};const ctx={setTransform(...x){calls.push(['transform',...x])},clearRect(){calls.length=0},save(){},restore(){},scale(){},translate(){},rotate(a){calls.push(['rotate',a])},beginPath(){},arc(){},clip(){},fillRect(...x){calls.push(['panel',this.fillStyle,...x])},strokeRect(){},drawImage(...x){calls.push(['image',...x,{alpha:this.globalAlpha??1,composite:this.globalCompositeOperation||'source-over'}])},fillText(...x){calls.push(['text',...x])},measureText(s){return {width:s.length*15}}};c.getContext=()=>ctx;paints.push(c);return c}
 const viewer={model:{materials:[panel,foil]},createCanvasTexture(){return {source:{element:canvas(),update(){uploads++}}}}};
-const state={gamecube:{art:'blob:uploaded-art'}};const ctx=vm.createContext({document:{activeElement:null,getElementById:el},systemState:state,activeSystem:'gamecube',v:viewer,showArt:{checked:true},s:{},readArtworkImage:async url=>({url}),artworkUpdate:Promise.resolve(),console});
+const state={gamecube:{art:null}};const ctx=vm.createContext({document:{activeElement:null,getElementById:el},systemState:state,activeSystem:'gamecube',v:viewer,showArt:{checked:true},s:{},readArtworkImage:async url=>({url}),artworkUpdate:Promise.resolve(),console});
 const assets=fs.readFileSync('outputs/branding-source/gamecube-label/assets.json','utf8');const source=fs.readFileSync('work/gamecube_label_controls.js','utf8').replace('GC_BRANDING_ASSETS',assets);vm.runInContext(source,ctx);const run=code=>vm.runInContext(code,ctx);
 (async()=>{
  await run('applyGCLabel()');assert.equal(paints.length,2);assert.equal(panel.alpha,'MASK');assert.equal(foil.alpha,'BLEND');assert.equal(paints[1].width,8192);assert.equal(state.gamecube.label.code,'GZWE');assert(paints[1].calls.some(x=>x[0]==='text'&&x[1]==='DL • DOL • GZWE • USA'));
@@ -22,6 +22,9 @@ const assets=fs.readFileSync('outputs/branding-source/gamecube-label/assets.json
  el('gc-panel-enabled').checked=false;el('gc-panel-enabled').oninput();await run('artworkUpdate');assert.equal(panel.pbrMetallicRoughness.factor[3],0);assert.equal(foil.pbrMetallicRoughness.factor[3],.90);
  el('gc-label-enabled').checked=false;el('gc-label-enabled').oninput();await run('artworkUpdate');assert.equal(foil.pbrMetallicRoughness.factor[3],0);
  run("activeSystem='ps2'");await run('applyGCLabel()');assert.equal(state.gamecube.label.code,'GAHE');run("activeSystem='gamecube'");run("document.getElementById('gc-label-reset').onclick()");await run('artworkUpdate');assert.equal(state.gamecube.label.code,'GZWE');assert.equal(state.gamecube.label.angle,0);
+ // Uploading or removing artwork must not change an enabled branding layer.
+ state.gamecube.art='blob:uploaded-art';await run('applyGCLabel()');assert.equal(panel.pbrMetallicRoughness.factor[3],1);
+ state.gamecube.art=null;await run('applyGCLabel()');assert.equal(panel.pbrMetallicRoughness.factor[3],1);assert.equal(foil.pbrMetallicRoughness.factor[3],.90);
  assert.strictEqual(foil.pbrMetallicRoughness.baseColorTexture.texture.source.element,paints[1]);assert(uploads>10);
  console.log('Verified GameCube label masks, live panel colour, four-character validation, seal/rating switching, shared rotation, visibility, console memory, reset and baked canvas texture for export.');
 })().catch(e=>{console.error(e);process.exitCode=1});
