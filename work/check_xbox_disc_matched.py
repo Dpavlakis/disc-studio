@@ -6,7 +6,7 @@ from build_xbox_disc_matched import ROOT,TARGET
 from embed_default_labels import load,geometry
 source=ROOT/'outputs/xbox-original-disc.glb';g,b=load(source)
 variant=ROOT/'outputs'/(TARGET+'.glb');v,vb=load(variant)
-assert v['extras']['discMatchedXboxVersion']==6
+assert v['extras']['discMatchedXboxVersion']==7
 assert v['extras']['discMatchedXboxSourceSha256']==hashlib.sha256(source.read_bytes()).hexdigest()
 assert vb[:len(b)]==b
 assert len(v['meshes'])==len(g['meshes'])==20
@@ -39,7 +39,7 @@ print('Extra Xbox variant: exact disc optical response on branding, security das
 for mesh_index,image_index in zip([7,11],v['extras']['discMatchedXboxPatternImages']):
  p=v['meshes'][mesh_index]['primitives'][2];m=v['materials'][p['material']]
  assert m['alphaMode']=='BLEND' and 'alphaCutoff' not in m
- assert m['pbrMetallicRoughness']['baseColorFactor']==[.86,.86,.85,.10]
+ assert m['pbrMetallicRoughness']['baseColorFactor']==[.86,.86,.85,.20]
  assert m['pbrMetallicRoughness']['roughnessFactor']==.12
  assert m['extensions']['KHR_materials_iridescence']['iridescenceFactor']==.10
  view=v['bufferViews'][v['images'][image_index]['bufferView']];start=view.get('byteOffset',0)
