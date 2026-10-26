@@ -1,7 +1,7 @@
 OPTICAL DISC MODEL PACK
 
 Open studio.html in a browser. First use needs internet for the viewer library.
-Select Blue, Silver, Gold or Black. Drag to inspect the light response. Choose a square image under Top artwork, use Artwork rotation to align it, and turn off Show PlayStation 2 branding if your image already contains that band. Then Download edited GLB to save your customized model. Rotation and branding visibility are included in the export.
+Select Blue, Silver, Gold or Black. Drag to inspect the light response. Choose a square image under Top artwork, use Artwork rotation to align it, and turn off Show PlayStation 2 branding if your image already contains that band. Use Save transparent PNG to save an image of your customized disc. The browser studio does not offer GLB downloads.
 
 MODELS
 ps2-blue-disc.glb: cobalt blue underside matching the supplied references.

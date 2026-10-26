@@ -4,7 +4,7 @@ Run the rebuild command below, then open **Open Studio.html**. First use needs i
 
 The generated studio page exceeds GitHub's per-file repository limit and is excluded from source control. `npm run build` creates it and a ready-to-use `outputs/optical-disc-pack.zip` alongside the model-only export.
 
-The studio includes PlayStation, PlayStation 2, PlayStation 3, PlayStation 4, original Xbox, Xbox 360 and GameCube discs. Upload artwork, adjust its rotation and coverage, choose lighting, and export an edited GLB or transparent PNG. GameCube branding has separate seal, rating, panel colour and four-character game-code controls.
+The studio includes PlayStation, PlayStation 2, PlayStation 3, PlayStation 4, original Xbox, Xbox 360 and GameCube discs. Upload artwork, adjust its rotation and coverage, choose lighting, and save a transparent PNG. GameCube branding has separate seal, rating, panel colour and four-character game-code controls.
 
 Left-drag orbits the view, middle-drag rotates the disc itself, right-drag pans, and the wheel zooms.
 
@@ -52,3 +52,5 @@ GameCube live branding uses cached 2048px textures instead of repainting an 8192
 The portable page stores compressed model payloads and decompresses the selected disc on demand. Prepared model URLs are reused when switching back. Opening this version requires a current browser with gzip DecompressionStream support.
 
 Photographic surroundings use matching 8K JPEG panoramas separately from the original HDR reflection maps. Backgrounds decode only when shown and reuse cached URLs; disc lighting and materials are unchanged. Images are CC0 from Poly Haven; see `outputs/lighting/ENVIRONMENT-CREDITS.txt`.
+
+The browser studio offers PNG saving only; its GLB export button and handler have been removed. Model assets remain accessible to the browser for rendering, so this is not copy protection.

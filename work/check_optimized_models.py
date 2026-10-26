@@ -29,7 +29,8 @@ package=(ROOT/'work/package.py').read_text(encoding='utf-8')
 assert "for p in optimized_root.glob('*.glb')" in package
 assert "gzip.compress(p.read_bytes()" in package
 assert 'new DecompressionStream' in html
-assert "if(system==='gamecube')await applyGCLabel(true)" in html
-assert "await applyGCLabel(false)" in html
+assert 'id="export"' not in html
+assert "v.exportScene(" not in html
+assert 'id="download-png"' in html
 assert report['optimizedBytes']<report['sourceBytes']*.65
-print('All twelve optimized models: exact expanded triangle attributes, unchanged materials/transforms/visible artwork, smaller files, optimized studio inputs and 8K GameCube GLB export verified.')
+print('All twelve optimized models: exact expanded triangle attributes, unchanged materials/transforms/visible artwork, smaller files, optimized studio inputs and PNG-only studio verified.')

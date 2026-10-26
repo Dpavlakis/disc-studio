@@ -8,7 +8,7 @@ const doc={getElementById(id){if(!elements.has(id))elements.set(id,element());re
 const persisted=new Map();const storage={getItem:key=>persisted.get(key)||null,setItem:(key,value)=>persisted.set(key,value)};
 const context=vm.createContext({localStorage:storage,document:doc,customElements:{whenDefined:()=>new Promise(()=>{})},console,URL:{},setTimeout,Blob,Uint8Array,Math});vm.runInContext(script,context);
 for(const [system,expected] of [['ps3','PS3'],['ps4','PS4'],['gamecube','GAMECUBE'],['xbox','MATCHED'],['xbox360','360MATCHED'],['ps1','BLACK'],['ps2','BLUE']]){
- vm.runInContext(`chooseSystem('${system}')`,context);assert(elements.get('disc').src.endsWith(expected));assert(!elements.get('export').disabled);assert(!elements.get('art').disabled);
+ vm.runInContext(`chooseSystem('${system}')`,context);assert(elements.get('disc').src.endsWith(expected));assert(!elements.get('art').disabled);
  for(const button of finishes)assert.strictEqual(button.hidden,button.dataset.platform!==system);
 }
 vm.runInContext("systemState.xbox360.art='blob:test-xbox';chooseSystem('xbox360')",context);assert.strictEqual(vm.runInContext('artURL',context),'blob:test-xbox');
@@ -28,4 +28,4 @@ storage.setItem('discStudio.finishes.v1',JSON.stringify({xbox:'ps2-gold-disc',xb
 assert.equal(vm.runInContext('systemState.xbox.finish',reloaded()),'xbox-original-disc-matched');
 assert.equal(vm.runInContext('systemState.xbox360.finish',reloaded()),'xbox360-disc-matched');
 storage.setItem('discStudio.finishes.v1','bad json');reloaded();
-console.log('Console controls checked: Original Xbox/Xbox 360/PS1/PS2/PS3/PS4 model selection, finish filtering, artwork memory and export availability');
+console.log('Console controls checked: Original Xbox/Xbox 360/PS1/PS2/PS3/PS4 model selection, finish filtering, artwork memory and PNG availability');

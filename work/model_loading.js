@@ -23,12 +23,12 @@ function setDiscModel(finish){
  // Raw GLB payloads remain supported for older saved studios.
  if(!value?.startsWith('gzip:')){modelPreparationPending=false;v.src='data:model/gltf-binary;base64,'+value;return Promise.resolve()}
  modelPreparationPending=true;v.style.visibility='hidden';
- document.getElementById('export').disabled=true;document.getElementById('download-png').disabled=true;
+ document.getElementById('download-png').disabled=true;
  return unpackModelSource(finish).then(url=>{
   if(version!==modelLoadVersion)return;
   modelPreparationPending=false;
   if(v.src===url&&v.loaded){
-   v.style.visibility='visible';document.getElementById('export').disabled=false;document.getElementById('download-png').disabled=false;return;
+   v.style.visibility='visible';document.getElementById('download-png').disabled=false;return;
   }
   v.src=url;
  }).catch(error=>{

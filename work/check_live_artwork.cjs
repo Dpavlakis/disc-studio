@@ -52,9 +52,10 @@ const watchdog=setTimeout(()=>{console.error('Live artwork checks did not finish
  elements.get('show-branding').checked=false;elements.get('show-branding').onchange();assert.equal(badgeAlpha,0);
  run("chooseSystem('xbox')");assert(elements.get('art-angle').disabled);await elements.get('art').onchange({target:{files:[{}]}});await turn(90);
  run("chooseSystem('ps2')");assert.equal(elements.get('art-angle-number').value,'8.2');assert.equal(elements.get('show-branding').checked,false);await run('requestArtworkUpdate()');
- // Export waits for the next paint, including when clicked during a drag.
- const pending=run('setArtworkAngle(12.3)');const exporting=elements.get('export').onclick();assert.equal(exportSnapshots.length,0);flush();await Promise.all([pending,exporting]);
- assert(Math.abs(exportSnapshots[0].angle-12.3*Math.PI/180)<1e-10);
+ // Pending artwork must finish before PNG capture.
+ const pending=run('setArtworkAngle(12.3)');const exporting=elements.get('download-png').onclick();
+ for(let i=0;i<20;i++){await Promise.resolve();flush()}await Promise.all([pending,exporting]);
+ assert(Math.abs(canvases[0].calls.find(c=>c.kind==='rotate').value-12.3*Math.PI/180)<1e-10);
  const reset=elements.get('art-angle-reset').onclick();flush();await reset;assert.equal(canvases[0].calls.find(c=>c.kind==='rotate').value,0);
  run("chooseSystem('xbox360')");await elements.get('art').onchange({target:{files:[{}]}});run("systemState.xbox360.header='classic'");await turn(17);
  const draws=canvases[0].calls.filter(c=>c.kind==='draw');assert.equal(draws.length,2);assert(Math.abs(draws[0].angle-17*Math.PI/180)<1e-10);assert.equal(draws[1].angle,0);
@@ -84,7 +85,6 @@ const watchdog=setTimeout(()=>{console.error('Live artwork checks did not finish
  await elements.get('art').onchange({target:{files:[{}]}});await turn(17.4);assert.strictEqual(centre.pbrMetallicRoughness.baseColorTexture.texture,textureSlot.texture);
  elements.get('show-art').checked=false;elements.get('show-art').onchange();assert.equal(centre.pbrMetallicRoughness.color[3],0);elements.get('show-art').checked=true;elements.get('show-art').onchange();assert.equal(centre.pbrMetallicRoughness.color[3],1);
  run("chooseSystem('ps2');chooseSystem('ps1')");assert.equal(style.value,'centre-print');
- let exportedLabel;viewer.exportScene=async()=>{exportedLabel={metal:face.pbrMetallicRoughness.metal,centreAlpha:centre.pbrMetallicRoughness.color[3],texture:centre.pbrMetallicRoughness.baseColorTexture.texture};return new Blob(['glb'])};await elements.get('export').onclick();assert.equal(exportedLabel.metal,0);assert.equal(exportedLabel.centreAlpha,1);assert.strictEqual(exportedLabel.texture,textureSlot.texture);
  // GameCube starts bare, uses translucent ink over its mastering details,
  // and retains independent artwork transforms across console switches.
  let gcAlpha,gcColor;top.setAlphaMode=v=>gcAlpha=v;top.pbrMetallicRoughness.setBaseColorFactor=v=>gcColor=v;
@@ -94,7 +94,6 @@ const watchdog=setTimeout(()=>{console.error('Live artwork checks did not finish
  const gcCoverage=run('setArtworkCoverage(103)');flush();await gcCoverage;await turn(24);
  run("chooseSystem('ps2');chooseSystem('gamecube')");assert.equal(run('systemState.gamecube.artCoverage'),103);assert.equal(run('systemState.gamecube.artRotation'),24);
  await run('requestArtworkUpdate()');assert.equal(canvases[0].calls.find(c=>c.kind==='draw').args[3],2048*1.03);
- let gcExport;viewer.exportScene=async()=>{gcExport={alpha:gcAlpha,color:gcColor,texture:textureSlot.texture};return new Blob(['glb'])};await elements.get('export').onclick();assert.equal(gcExport.alpha,'BLEND');assert.equal(gcExport.color[3],.94);assert(gcExport.texture);
  // Hiding GameCube artwork must leave its enabled branding visible.
  elements.get('show-art').checked=false;elements.get('show-art').onchange();
  assert.equal(gcColor[3],0);assert.equal(gcPanel.pbrMetallicRoughness.color[3],1);assert.equal(gcFoil.pbrMetallicRoughness.color[3],.90);
@@ -114,5 +113,5 @@ const watchdog=setTimeout(()=>{console.error('Live artwork checks did not finish
  viewer.style.visibility='hidden';let finishUpdate;viewer.updateComplete=new Promise(resolve=>{finishUpdate=resolve});
  const initialLoads=viewer.handlers.load.map(fn=>fn({}));await new Promise(resolve=>setImmediate(resolve));assert.equal(viewer.style.visibility,'hidden');
  finishUpdate();await Promise.all(initialLoads);assert.equal(viewer.style.visibility,'visible');
- console.log('Verified live artwork, coverage, rotation, headers, exports, PSX styles, GameCube branding and deferred initial reveal.');
+ console.log('Verified live artwork, coverage, rotation, headers, PNG capture, PSX styles, GameCube branding and deferred initial reveal.');
 })().catch(error=>{console.error(error);process.exitCode=1}).finally(()=>clearTimeout(watchdog));
