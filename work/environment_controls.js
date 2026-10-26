@@ -1,4 +1,5 @@
 const lightmaps=LIGHTMAPS;
+const backgrounds=BACKGROUNDS;
 const environmentPresets=ENVIRONMENT_PRESETS;
 const lightChoice=document.getElementById('lights');
 const showSurroundings=document.getElementById('show-surroundings');
@@ -27,10 +28,22 @@ function environmentURL(key){
   }
   return environmentURLs.get(key);
 }
+function backgroundURL(key){
+  if(key==='custom')return customEnvironment.url;
+  const cacheKey=key+'-background';
+  if(!environmentURLs.has(cacheKey)){
+    const binary=atob(backgrounds[key].split(',')[1]);
+    const bytes=Uint8Array.from(binary,c=>c.charCodeAt(0));
+    const url=URL.createObjectURL(new Blob([bytes],{type:'image/jpeg'}));
+    allocatedEnvironmentURLs.add(url);
+    environmentURLs.set(cacheKey,url+'#.jpg');
+  }
+  return environmentURLs.get(cacheKey);
+}
 function syncEnvironmentBackground(){
   const photo=currentEnvironment();
   showSurroundings.disabled=!photo;
-  v.skyboxImage=photo&&showSurroundings.checked&&!transparentCapture?environmentURL(lightChoice.value):null;
+  v.skyboxImage=photo&&showSurroundings.checked&&!transparentCapture?backgroundURL(lightChoice.value):null;
   environmentHint.textContent=photo
     ?(showSurroundings.checked?'360° surroundings and reflections.':'Reflections only. Turn on the surroundings to see the scene.')
     :'Studio lighting with a plain background.';

@@ -50,3 +50,5 @@ Runtime optimisation shares identical vertex records without simplifying shapes 
 GameCube live branding uses cached 2048px textures instead of repainting an 8192px canvas on every artwork update. Edited GLB export temporarily renders the original 8192px foil branding, then restores the lightweight preview. Only the unused native GameCube branding placeholders are reduced in runtime models; the live vector layer replaces them.
 
 The portable page stores compressed model payloads and decompresses the selected disc on demand. Prepared model URLs are reused when switching back. Opening this version requires a current browser with gzip DecompressionStream support.
+
+Photographic surroundings use matching 8K JPEG panoramas separately from the original HDR reflection maps. Backgrounds decode only when shown and reuse cached URLs; disc lighting and materials are unchanged. Images are CC0 from Poly Haven; see `outputs/lighting/ENVIRONMENT-CREDITS.txt`.

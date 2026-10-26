@@ -1,11 +1,15 @@
 const fs=require('fs'),vm=require('vm'),assert=require('assert'),crypto=require('crypto');
 const presets=JSON.parse(fs.readFileSync('outputs/lighting/environments.json','utf8'));
-const maps={};
+const maps={},backgrounds={};
 for(const [key,preset] of Object.entries(presets)){
   const data=fs.readFileSync('outputs/lighting/'+preset.file);
   assert.equal(crypto.createHash('sha256').update(data).digest('hex'),preset.sha256);
   assert(data.subarray(0,20).toString().startsWith('#?RADIANCE'));
   assert(data.subarray(0,300).toString().includes('-Y 1024 +X 2048'));
+  const photo=fs.readFileSync('outputs/lighting/'+preset.background.file);
+  assert.equal(crypto.createHash('sha256').update(photo).digest('hex'),preset.background.sha256);
+  assert.equal(preset.background.width,8192);assert.equal(preset.background.height,4096);
+  backgrounds[key]='data:image/jpeg;base64,'+Buffer.from('JPEG '+key).toString('base64');
   maps[key]='data:application/octet-stream;base64,'+Buffer.from('HDR '+key).toString('base64');
 }
 for(let i=1;i<=4;i++)maps[i]='data:application/octet-stream;base64,'+Buffer.from('softbox '+i).toString('base64');
@@ -17,7 +21,7 @@ const context=vm.createContext({document:{getElementById:el},v:viewer,s:{textCon
   atob:value=>Buffer.from(value,'base64').toString('binary'),
   URL:{createObjectURL:()=> 'blob:environment-'+(++sequence),revokeObjectURL:url=>revoked.push(url)},
   Image:class{set src(value){this.url=value;this.width=2048;this.height=1024;images.push(this)}}});
-const source=fs.readFileSync('work/environment_controls.js','utf8').replace('LIGHTMAPS',JSON.stringify(maps)).replace('ENVIRONMENT_PRESETS',JSON.stringify(presets));
+const source=fs.readFileSync('work/environment_controls.js','utf8').replace('LIGHTMAPS',JSON.stringify(maps)).replace('BACKGROUNDS',JSON.stringify(backgrounds)).replace('ENVIRONMENT_PRESETS',JSON.stringify(presets));
 vm.runInContext(source,context);const run=code=>vm.runInContext(code,context);
 async function select(key){el('lights').value=key;await el('lights').onchange()}
 const upload=file=>el('environment-upload').onchange({target:{files:[file]}});
@@ -26,12 +30,12 @@ const upload=file=>el('environment-upload').onchange({target:{files:[file]}});
   for(let i=1;i<=4;i++){await select(String(i));assert(viewer.environmentImage.endsWith('#.hdr'));assert.equal(viewer.skyboxImage,null)}
   for(const key of Object.keys(presets)){
     await select(key);assert(!el('show-surroundings').disabled);assert.equal(viewer.skyboxImage,null);
-    el('show-surroundings').checked=true;el('show-surroundings').onchange();assert.equal(viewer.skyboxImage,viewer.environmentImage);
+    el('show-surroundings').checked=true;el('show-surroundings').onchange();assert.notEqual(viewer.skyboxImage,viewer.environmentImage);assert(viewer.skyboxImage.endsWith('#.jpg'));
     el('show-surroundings').checked=false;el('show-surroundings').onchange();assert.equal(viewer.skyboxImage,null);
   }
   const count=sequence;await select('living-room');const room=viewer.environmentImage;await select('office');await select('living-room');assert.equal(viewer.environmentImage,room);assert.equal(sequence,count);assert.equal(revoked.length,0);
   el('show-surroundings').checked=true;el('show-surroundings').onchange();run('transparentCapture=true;syncEnvironmentBackground()');assert.equal(viewer.skyboxImage,null);
-  run('transparentCapture=false;syncEnvironmentBackground()');assert.equal(viewer.skyboxImage,room);
+  run('transparentCapture=false;syncEnvironmentBackground()');assert.notEqual(viewer.skyboxImage,room);assert(viewer.skyboxImage.endsWith('#.jpg'));
   await select('neutral');assert.equal(viewer.skyboxImage,null);assert(el('show-surroundings').disabled);
   const hdr={name:'test.hdr',slice:()=>({arrayBuffer:async()=>Buffer.from('#?RADIANCE\n')})};
   await upload(hdr);assert.equal(el('lights').value,'custom');assert(viewer.environmentImage.endsWith('#.hdr'));

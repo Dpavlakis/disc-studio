@@ -47,7 +47,8 @@ lightmaps={str(i):'data:application/octet-stream;base64,'+base64.b64encode((root
 environment_presets=json.loads((root/'lighting/environments.json').read_text(encoding='utf-8'))
 for key,preset in environment_presets.items():
  lightmaps[key]='data:application/octet-stream;base64,'+base64.b64encode((root/'lighting'/preset['file']).read_bytes()).decode()
-environment_controls_js=(root.parent/'work/environment_controls.js').read_text(encoding='utf-8').replace('LIGHTMAPS',json.dumps(lightmaps)).replace('ENVIRONMENT_PRESETS',json.dumps(environment_presets))
+backgrounds={key:'data:image/jpeg;base64,'+base64.b64encode((root/'lighting'/preset['background']['file']).read_bytes()).decode() for key,preset in environment_presets.items()}
+environment_controls_js=(root.parent/'work/environment_controls.js').read_text(encoding='utf-8').replace('LIGHTMAPS',json.dumps(lightmaps)).replace('BACKGROUNDS',json.dumps(backgrounds)).replace('ENVIRONMENT_PRESETS',json.dumps(environment_presets))
 header_cuts={'classic': 372, 'live-classic': 372, 'live-wordmark': 363, 'no-live': 363, 'live-wide': 363, 'live-split': 363, 'kinect': 362, 'green-waves': 374}
 headers={key:{'url':'data:image/png;base64,'+base64.b64encode((root/'xbox360-headers'/f'{key}.png').read_bytes()).decode(),'cut':cut} for key,cut in header_cuts.items()}
 artwork_controls_js=(root.parent/'work/artwork_controls.js').read_text(encoding='utf-8')
@@ -168,7 +169,7 @@ Assign your image to Base Color in TOP_ART_REPLACE_THIS_TEXTURE. UVs are already
 label-art.png is a placeholder/template. Changing it alone does NOT update the embedded GLB: reassign the image in your 3D app, or use the browser preview and export.
 
 LIGHT RESPONSE
-The Environment menu keeps all studio softbox options and adds five photographic 2K HDRIs: living room, office, garden, forest and sunset waterfront. Select one to light the disc; Show 360° surroundings also displays the panorama behind it. Choose your own panorama accepts Radiance .hdr or a 2:1 equirectangular JPG/PNG. LDR photos provide less highlight range than HDR. Lighting and surroundings are preview settings, not embedded in exported GLBs. Transparent PNG export excludes the surroundings. Included HDRIs are CC0 assets from Poly Haven; see lighting/ENVIRONMENT-CREDITS.txt for sources.
+The Environment menu keeps all studio softbox options and adds five photographic environments with separate 8K backgrounds and 2K HDR lighting: living room, office, garden, forest and sunset waterfront. Select one to light the disc; Show 360° surroundings also displays the panorama behind it. Choose your own panorama accepts Radiance .hdr or a 2:1 equirectangular JPG/PNG. LDR photos provide less highlight range than HDR. Lighting and surroundings are preview settings, not embedded in exported GLBs. Transparent PNG export excludes the surroundings. Included HDRIs are CC0 assets from Poly Haven; see lighting/ENVIRONMENT-CREDITS.txt for sources.
 Blue metallic material, glossy clearcoat, concentric micro-normal texture, radial anisotropy and glTF iridescence. Use an HDRI/studio environment with bright strip lights for reflections. Rainbow response is an artistic approximation of optical-disc diffraction, not a spectral diffraction simulation. Exact blue appearance depends on lighting, exposure and renderer. Apps without the optional glTF material extensions show a simpler blue metallic surface. Hub transmission may also vary by renderer.
 
 BLENDER

@@ -6,7 +6,14 @@
     "source": "https://polyhaven.com/a/lebombo",
     "download": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/2k/lebombo_2k.hdr",
     "license": "CC0",
-    "sha256": "d9581004963990b0e740e26f6468b87903bc2b79c1efd54adfbac985fbf7ec1b"
+    "sha256": "d9581004963990b0e740e26f6468b87903bc2b79c1efd54adfbac985fbf7ec1b",
+    "background": {
+      "file": "living-room-background.jpg",
+      "width": 8192,
+      "height": 4096,
+      "source": "https://dl.polyhaven.org/file/ph-assets/HDRIs/extra/Tonemapped%20JPG/lebombo.jpg",
+      "sha256": "c1bb66451cb48c1e4a342ff649a02b86fc628f6156e7a2f66a31e66c9d66dc46"
+    }
   },
   "office": {
     "label": "Office \u00b7 Daylight",
@@ -15,7 +22,14 @@
     "source": "https://polyhaven.com/a/unfinished_office",
     "download": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/2k/unfinished_office_2k.hdr",
     "license": "CC0",
-    "sha256": "1684ef00a17abe19213a20c7e58365faa1b895cb89c74201c944bfd72c7c93e7"
+    "sha256": "1684ef00a17abe19213a20c7e58365faa1b895cb89c74201c944bfd72c7c93e7",
+    "background": {
+      "file": "office-background.jpg",
+      "width": 8192,
+      "height": 4096,
+      "source": "https://dl.polyhaven.org/file/ph-assets/HDRIs/extra/Tonemapped%20JPG/unfinished_office.jpg",
+      "sha256": "25064c9ce43c729caff28a2319381de4ec337f4f766e9de3617e4d9bac90dc18"
+    }
   },
   "garden": {
     "label": "Garden \u00b7 Sunshine",
@@ -24,7 +38,14 @@
     "source": "https://polyhaven.com/a/garden_nook",
     "download": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/2k/garden_nook_2k.hdr",
     "license": "CC0",
-    "sha256": "fe1cbe0b62d5a4696626afc7b66d172a8de670b9092af1fdee9302d86748fde1"
+    "sha256": "fe1cbe0b62d5a4696626afc7b66d172a8de670b9092af1fdee9302d86748fde1",
+    "background": {
+      "file": "garden-background.jpg",
+      "width": 8192,
+      "height": 4096,
+      "source": "https://dl.polyhaven.org/file/ph-assets/HDRIs/extra/Tonemapped%20JPG/garden_nook.jpg",
+      "sha256": "4cbef6396aa2c070cda619b44e80616ecb883d36b2b38ea2b2ede301071346ab"
+    }
   },
   "forest": {
     "label": "Forest \u00b7 Dappled shade",
@@ -33,7 +54,14 @@
     "source": "https://polyhaven.com/a/forest_slope",
     "download": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/2k/forest_slope_2k.hdr",
     "license": "CC0",
-    "sha256": "aa76871c301a2ea5977043e48036b53bb3f26eff0d96fa833789a7738569c279"
+    "sha256": "aa76871c301a2ea5977043e48036b53bb3f26eff0d96fa833789a7738569c279",
+    "background": {
+      "file": "forest-background.jpg",
+      "width": 8192,
+      "height": 4096,
+      "source": "https://dl.polyhaven.org/file/ph-assets/HDRIs/extra/Tonemapped%20JPG/forest_slope.jpg",
+      "sha256": "76d1fdcfda2f5149d39bc692d5f2aafdb3a6bae1ae453c01ce626ad52b4b2c09"
+    }
   },
   "sunset": {
     "label": "Waterfront \u00b7 Sunset",
@@ -42,6 +70,13 @@
     "source": "https://polyhaven.com/a/venice_sunset",
     "download": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/2k/venice_sunset_2k.hdr",
     "license": "CC0",
-    "sha256": "cbfac020ee17ab36016ccc7fbe9020b828587b9864af6ecda0a93089914889a6"
+    "sha256": "cbfac020ee17ab36016ccc7fbe9020b828587b9864af6ecda0a93089914889a6",
+    "background": {
+      "file": "sunset-background.jpg",
+      "width": 8192,
+      "height": 4096,
+      "source": "https://dl.polyhaven.org/file/ph-assets/HDRIs/extra/Tonemapped%20JPG/venice_sunset.jpg",
+      "sha256": "f9ea4c9b173eeee638a85f59f80d53c3b219bdb88cca6c57cebcae4bc8e096c0"
+    }
   }
 }

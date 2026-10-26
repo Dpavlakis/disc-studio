@@ -16,3 +16,5 @@ https://polyhaven.com/a/forest_slope
 
 Waterfront · Sunset
 https://polyhaven.com/a/venice_sunset
+
+Background panoramas: matching Poly Haven tonemapped photographs, resized to 8192 x 4096 (8K), JPEG quality 90. HDR lighting files unchanged.
