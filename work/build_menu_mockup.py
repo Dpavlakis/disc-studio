@@ -4,7 +4,6 @@ root=Path(__file__).resolve().parents[1]
 out=root/'mockups/menu-polish';out.mkdir(parents=True,exist_ok=True)
 header=(root/'work/studio_header.html').read_text(encoding='utf-8')
 header=header.replace('class="studio-brand"','class="studio-brand"').replace('<h1>Disc Studio</h1>','<h1>Disc Studio</h1>')
-header=re.sub(r'(<button type="button" data-system="([^"]+)"[^>]*>)(.*?)(</button>)',lambda m:m[1]+m[3]+'<span>'+{'ps1':'PlayStation','ps2':'PS2','ps3':'PS3','ps4':'PS4','xbox':'Xbox','xbox360':'Xbox 360','gamecube':'GameCube'}[m[2]]+'</span>'+m[4],header)
 header=re.sub(r'<p id="system-context".*?</p>','<p id="system-context">GameCube <span>80 mm mini disc</span></p>',header)
 header=header.replace('Console &amp; finish','Console').replace('Printed artwork','Artwork').replace('Light &amp; reflection','Lighting').replace('Choose artwork','Upload artwork').replace('Save transparent PNG','Save PNG <span aria-hidden="true">↓</span>')
 header=header.replace('Loading your disc…','Transparent background · PNG')
@@ -18,9 +17,9 @@ body{grid-template-columns:354px minmax(0,1fr);background:#e4e2dc}
 .studio-brand{margin-bottom:25px;gap:12px}.disc-mark{width:34px;height:34px}.disc-mark:after{inset:11px}h1{font-size:23px;letter-spacing:-.8px}.brand-subtitle{font-size:11px;color:#a0a8af;margin:5px 0 0}
 .studio-panel .control-section{flex-shrink:0}.studio-panel .control-section>summary{padding:19px 0}.studio-panel .control-section>summary h2 span{font-size:13px;letter-spacing:0;font-weight:600}
 .studio-panel .system-nav{grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
-.studio-panel .system-nav button{height:76px;min-height:76px;border-radius:10px;background:#21262c;border-color:#353b42;padding:10px 3px;gap:6px}
-.studio-panel .system-nav button img{height:29px;width:38px;opacity:.75}.studio-panel .system-nav button span{font-size:10px;color:#c1c7cb;white-space:nowrap}
-.studio-panel .system-nav button[aria-pressed=true]{background:#d0ef9b;border-color:#d0ef9b;box-shadow:0 0 0 2px #d0ef9b16}.studio-panel .system-nav button[aria-pressed=true] img{filter:brightness(0);opacity:.9}.studio-panel .system-nav button[aria-pressed=true] span{color:#26301d;font-weight:600}
+.studio-panel .system-nav button{height:76px;min-height:76px;border-radius:10px;background:#21262c;border-color:#353b42;padding:14px 3px;gap:0}
+.studio-panel .system-nav button img{height:34px;width:44px;opacity:.75}
+.studio-panel .system-nav button[aria-pressed=true]{background:#d0ef9b;border-color:#d0ef9b;box-shadow:0 0 0 2px #d0ef9b16}.studio-panel .system-nav button[aria-pressed=true] img{filter:brightness(0);opacity:.9}
 .studio-panel #system-context{display:flex;justify-content:space-between;font-size:12px;font-weight:600;margin:17px 0 11px;color:#e1e6e2}.studio-panel #system-context span{font-size:11px;font-weight:400;color:#929ba3}
 .studio-panel [data-finish]{text-align:left;border-radius:8px;font-size:11px;min-height:36px;margin:0 0 6px}
 .studio-panel .upload-control{border:1px dashed #5b6654;background:#262e24;border-radius:9px;min-height:61px;padding:15px;color:#e6efd9;font-size:12px}.studio-panel .upload-control span{font-size:9px;color:#a1ae91}
