@@ -21,7 +21,7 @@ async function unpackModelSource(finish){
 function setDiscModel(finish){
  const version=++modelLoadVersion,value=models[finish];
  // Raw GLB payloads remain supported for older saved studios.
- if(value?.startsWith('url:')){modelPreparationPending=false;v.src=value.slice(4);return Promise.resolve()}
+ if(value?.startsWith('url:')){modelPreparationPending=false;v.src=globalThis.location?new URL(value.slice(4),globalThis.location.href).href:value.slice(4);return Promise.resolve()}
  if(!value?.startsWith('gzip:')){modelPreparationPending=false;v.src='data:model/gltf-binary;base64,'+value;return Promise.resolve()}
  modelPreparationPending=true;v.style.visibility='hidden';
  document.getElementById('download-png').disabled=true;
