@@ -1,6 +1,6 @@
 """Check the hosted bundle references only included public assets."""
 from pathlib import Path
-import hashlib,json,re
+import gzip,hashlib,json,re
 root=Path(__file__).resolve().parents[1]/'outputs/site'
 html=(root/'index.html').read_text(encoding='utf-8')
 manifest=json.loads((root/'build-manifest.json').read_text())['files']
@@ -11,9 +11,12 @@ for name,entry in manifest.items():
 for name in set(re.findall(r'assets/[a-f0-9]{16}\.[a-z0-9]+',html)):assert (root/name).is_file(),name
 models=json.loads(html.split('<script>const models=',1)[1].split('; const v=',1)[0])
 assert len(models)==12
-for value in models.values():
- assert value.startswith('url:assets/')
- assert (root/value[4:]).is_file()
+for name,value in models.items():
+ assert value.startswith('gzip-url:assets/')
+ payload=(root/value[9:]).read_bytes()
+ source=(root.parent/'optimized-models'/f'{name}.glb').read_bytes()
+ assert gzip.decompress(payload)==source
+ assert len(payload)<len(source)*.8
 assert 'id="export"' not in html and 'v.exportScene(' not in html
 assert 'id="download-png"' in html
 assert 'value="living-room" selected' in html and "chooseSystem('ps1');" in html

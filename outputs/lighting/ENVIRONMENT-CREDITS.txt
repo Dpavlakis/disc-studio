@@ -18,3 +18,5 @@ Waterfront · Sunset
 https://polyhaven.com/a/venice_sunset
 
 Background panoramas: matching Poly Haven tonemapped photographs, resized to 8192 x 4096 (8K), JPEG quality 90. HDR lighting files unchanged.
+
+Hosted reflection lighting: matching original 1024 x 512 Radiance HDR files from the same Poly Haven CC0 assets (sources and hashes in environments.json). 8K backgrounds unchanged.

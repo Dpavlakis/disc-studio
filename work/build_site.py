@@ -1,6 +1,6 @@
 """Build the hosted studio from approved assets without rebuilding native models."""
 from pathlib import Path
-import ast,base64,hashlib,json,re,shutil
+import ast,base64,gzip,hashlib,json,re,shutil
 ROOT=Path(__file__).resolve().parents[1]
 SOURCE=ROOT/'outputs'
 DEST=SOURCE/'site'
@@ -23,11 +23,16 @@ def build():
      try:values[target.id]=ast.literal_eval(node.value)
      except (ValueError,TypeError):pass
  html=values['html']
- models={p.stem:'url:'+publish(p) for p in sorted((SOURCE/'optimized-models').glob('*.glb'))}
+ def compressed_model(path):
+  data=gzip.compress(path.read_bytes(),compresslevel=6,mtime=0)
+  name=hashlib.sha256(data).hexdigest()[:16]+'.gz'
+  (assets/name).write_bytes(data);used.add(name)
+  return 'gzip-url:assets/'+name
+ models={p.stem:compressed_model(p) for p in sorted((SOURCE/'optimized-models').glob('*.glb'))}
  assert len(models)==12
  presets=json.loads((SOURCE/'lighting/environments.json').read_text(encoding='utf-8'))
  lightmaps={str(i):publish(SOURCE/'lighting'/f'{i}-softbox.hdr') for i in range(1,5)}
- for key,preset in presets.items():lightmaps[key]=publish(SOURCE/'lighting'/preset['file'])
+ for key,preset in presets.items():lightmaps[key]=publish(SOURCE/'lighting'/preset['webLighting']['file'])
  backgrounds={key:publish(SOURCE/'lighting'/preset['background']['file']) for key,preset in presets.items()}
  headers={key:{'url':publish(SOURCE/'xbox360-headers'/f'{key}.png'),'cut':cut} for key,cut in values['header_cuts'].items()}
  def script(name):return (ROOT/'work'/name).read_text(encoding='utf-8')

@@ -13,6 +13,11 @@
       "height": 4096,
       "source": "https://dl.polyhaven.org/file/ph-assets/HDRIs/extra/Tonemapped%20JPG/lebombo.jpg",
       "sha256": "c1bb66451cb48c1e4a342ff649a02b86fc628f6156e7a2f66a31e66c9d66dc46"
+    },
+    "webLighting": {
+      "file": "living-room-lighting-1k.hdr",
+      "source": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/lebombo_1k.hdr",
+      "sha256": "a02c9615adeba91a753c3e4737c3ce7a719273df822eeaa85d24982bd43c9ecb"
     }
   },
   "office": {
@@ -29,6 +34,11 @@
       "height": 4096,
       "source": "https://dl.polyhaven.org/file/ph-assets/HDRIs/extra/Tonemapped%20JPG/unfinished_office.jpg",
       "sha256": "25064c9ce43c729caff28a2319381de4ec337f4f766e9de3617e4d9bac90dc18"
+    },
+    "webLighting": {
+      "file": "office-lighting-1k.hdr",
+      "source": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/unfinished_office_1k.hdr",
+      "sha256": "49066c90ac8f4a64ce9a0480f061cdf6be79802be8946dae196a9a5d1e454ae4"
     }
   },
   "garden": {
@@ -45,6 +55,11 @@
       "height": 4096,
       "source": "https://dl.polyhaven.org/file/ph-assets/HDRIs/extra/Tonemapped%20JPG/garden_nook.jpg",
       "sha256": "4cbef6396aa2c070cda619b44e80616ecb883d36b2b38ea2b2ede301071346ab"
+    },
+    "webLighting": {
+      "file": "garden-lighting-1k.hdr",
+      "source": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/garden_nook_1k.hdr",
+      "sha256": "f8c7970483be873487fabc0f07891be7e1551220dba911ea9dadd56f8a336a00"
     }
   },
   "forest": {
@@ -61,6 +76,11 @@
       "height": 4096,
       "source": "https://dl.polyhaven.org/file/ph-assets/HDRIs/extra/Tonemapped%20JPG/forest_slope.jpg",
       "sha256": "76d1fdcfda2f5149d39bc692d5f2aafdb3a6bae1ae453c01ce626ad52b4b2c09"
+    },
+    "webLighting": {
+      "file": "forest-lighting-1k.hdr",
+      "source": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/forest_slope_1k.hdr",
+      "sha256": "926a6bb81897919b2924f42407162b8d54be91eab2da3fe7fe19daf308cfa09a"
     }
   },
   "sunset": {
@@ -77,6 +97,11 @@
       "height": 4096,
       "source": "https://dl.polyhaven.org/file/ph-assets/HDRIs/extra/Tonemapped%20JPG/venice_sunset.jpg",
       "sha256": "f9ea4c9b173eeee638a85f59f80d53c3b219bdb88cca6c57cebcae4bc8e096c0"
+    },
+    "webLighting": {
+      "file": "sunset-lighting-1k.hdr",
+      "source": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/venice_sunset_1k.hdr",
+      "sha256": "92fe2b29b1957828fb8925a57633540bbba5bf380d9285ed553443e834249352"
     }
   }
 }

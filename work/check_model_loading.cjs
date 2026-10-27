@@ -2,10 +2,10 @@ const fs=require('fs'),vm=require('vm'),assert=require('assert'),zlib=require('z
 const source=fs.readFileSync('work/model_loading.js','utf8');
 const packed=s=>'gzip:'+zlib.gzipSync(Buffer.from(s)).toString('base64');
 const models={a:packed('MODEL A'),b:packed('MODEL B'),legacy:'RAW',bad:'gzip:'+Buffer.from('invalid gzip').toString('base64')};
-const blobs=new Map(),writes=[],elements=new Map();let next=0;
+const blobs=new Map(),writes=[],elements=new Map();let next=0,fetches=0;
 const viewer={style:{},loaded:false,set src(value){this.value=value;writes.push(value)},get src(){return this.value}};
 const document={getElementById(id){if(!elements.has(id))elements.set(id,{});return elements.get(id)}};
-const context=vm.createContext({models,v:viewer,document,s:{},Blob,Response,DecompressionStream,Uint8Array,atob,URL:{createObjectURL(blob){const id='blob:'+(++next);blobs.set(id,blob);return id}}});
+const context=vm.createContext({models,v:viewer,document,s:{},Blob,Response,fetch:async url=>{fetches++;if(url.includes("missing"))return new Response(null,{status:404});return new Response(zlib.gzipSync(Buffer.from("HOSTED MODEL")))},DecompressionStream,Uint8Array,atob,URL:{createObjectURL(blob){const id='blob:'+(++next);blobs.set(id,blob);return id}}});
 vm.runInContext(source,context);const run=s=>vm.runInContext(s,context);
 (async()=>{
  const [a1,a2]=await Promise.all([run("unpackModelSource('a')"),run("unpackModelSource('a')")]);assert.equal(a1,a2);assert.equal(blobs.size,1);
@@ -17,5 +17,7 @@ vm.runInContext(source,context);const run=s=>vm.runInContext(s,context);
  await run("setDiscModel('legacy')");assert.equal(viewer.src,'data:model/gltf-binary;base64,RAW');
  await assert.rejects(run("unpackModelSource('bad')"));assert.equal(run("modelSourceCache.has('bad')"),false);
  await run("models.hosted='url:assets/test.glb';setDiscModel('hosted')");assert.equal(viewer.src,'assets/test.glb');
- console.log('Verified gzip decoding, one preparation per disc, cached switching, rapid-click stale-request protection, PNG readiness, legacy support and failed-cache cleanup.');
+ await run("models.compressed='gzip-url:assets/test.gz';setDiscModel('compressed')");assert.equal(await blobs.get(viewer.src).text(),'HOSTED MODEL');await run("setDiscModel('compressed')");assert.equal(fetches,1);
+ await run("models.missing='gzip-url:assets/missing.gz'");await assert.rejects(run("unpackModelSource('missing')"));assert.equal(run("modelSourceCache.has('missing')"),false);
+ console.log('Verified hosted downloads, gzip decoding, one preparation per disc, cached switching, rapid-click stale-request protection, PNG readiness, legacy support and failed-cache cleanup.');
 })().catch(error=>{console.error(error);process.exitCode=1});

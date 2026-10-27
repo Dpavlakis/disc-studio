@@ -60,3 +60,5 @@ The browser studio offers PNG saving only; its GLB export button and handler hav
 Public site: https://dpavlakis.github.io/disc-studio/
 
 `python work/build_site.py` creates `outputs/site/index.html` and separate content-hashed assets from the approved models. Only the selected disc and environment load when needed. It does not rebuild the models or include archives, build masters or sample artwork in the published site. `python work/check_site.py` validates the bundle. The Pages workflow builds and deploys on pushes to main. The portable local studio remains available through `npm run build`.
+
+Hosted model transfers use explicit gzip downloads with browser decompression and cached object URLs. Expanded GLBs remain byte-for-byte identical to the optimized models. Hosted reflection lighting uses original Poly Haven 1K HDR files, matching the viewer lighting-resolution limit; 8K background panoramas remain unchanged.
