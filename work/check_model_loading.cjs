@@ -16,5 +16,6 @@ vm.runInContext(source,context);const run=s=>vm.runInContext(s,context);
  viewer.loaded=true;await run("setDiscModel('b')");assert.equal(viewer.style.visibility,'visible');assert.equal(document.getElementById('download-png').disabled,false);assert.equal(blobs.size,2);
  await run("setDiscModel('legacy')");assert.equal(viewer.src,'data:model/gltf-binary;base64,RAW');
  await assert.rejects(run("unpackModelSource('bad')"));assert.equal(run("modelSourceCache.has('bad')"),false);
+ await run("models.hosted='url:assets/test.glb';setDiscModel('hosted')");assert.equal(viewer.src,'assets/test.glb');
  console.log('Verified gzip decoding, one preparation per disc, cached switching, rapid-click stale-request protection, PNG readiness, legacy support and failed-cache cleanup.');
 })().catch(error=>{console.error(error);process.exitCode=1});

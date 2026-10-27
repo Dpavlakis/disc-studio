@@ -54,3 +54,9 @@ The portable page stores compressed model payloads and decompresses the selected
 Photographic surroundings use matching 8K JPEG panoramas separately from the original HDR reflection maps. Backgrounds decode only when shown and reuse cached URLs; disc lighting and materials are unchanged. Images are CC0 from Poly Haven; see `outputs/lighting/ENVIRONMENT-CREDITS.txt`.
 
 The browser studio offers PNG saving only; its GLB export button and handler have been removed. Model assets remain accessible to the browser for rendering, so this is not copy protection.
+
+## Hosted studio
+
+Public site: https://dpavlakis.github.io/disc-studio/
+
+`python work/build_site.py` creates `outputs/site/index.html` and separate content-hashed assets from the approved models. Only the selected disc and environment load when needed. It does not rebuild the models or include archives, build masters or sample artwork in the published site. `python work/check_site.py` validates the bundle. The Pages workflow builds and deploys on pushes to main. The portable local studio remains available through `npm run build`.

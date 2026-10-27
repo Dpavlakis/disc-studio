@@ -19,6 +19,7 @@ function currentEnvironment(){
 function environmentURL(key){
   if(key==='neutral')return 'neutral';
   if(key==='custom')return customEnvironment.url;
+  if(!lightmaps[key].startsWith('data:'))return lightmaps[key];
   if(!environmentURLs.has(key)){
     const binary=atob(lightmaps[key].split(',')[1]);
     const bytes=Uint8Array.from(binary,c=>c.charCodeAt(0));
@@ -30,6 +31,7 @@ function environmentURL(key){
 }
 function backgroundURL(key){
   if(key==='custom')return customEnvironment.url;
+  if(!backgrounds[key].startsWith('data:'))return backgrounds[key];
   const cacheKey=key+'-background';
   if(!environmentURLs.has(cacheKey)){
     const binary=atob(backgrounds[key].split(',')[1]);
